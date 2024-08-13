@@ -6,6 +6,7 @@ import com.github.mikephil.charting.data.Entry
 import com.oliver.wallet.data.model.MoneyModel
 import com.oliver.wallet.data.model.MoneyResponse
 import com.oliver.wallet.data.model.StockModel
+import com.oliver.wallet.data.network.ResultWrapper
 import com.oliver.wallet.data.network.money.MoneyRepository
 import com.oliver.wallet.data.network.stockexchange.StockRepository
 import com.oliver.wallet.util.TypeMoneyEnum
@@ -47,12 +48,8 @@ class HomeViewModel : ViewModel() {
     private fun loadMoneyPeriodically() {
         viewModelScope.launch {
             while (isActive) {
-                try {
-                    setResponseMoney(getCurrentCoinData(symbolMoney.moneyType), symbolMoney)
-                    delay(UPDATE_INTERVAL_30)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                getCurrentCoinData(symbolMoney)
+                delay(UPDATE_INTERVAL_30)
             }
         }
     }
@@ -61,7 +58,7 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 while (isActive) {
-                    _listMoney.value = getCoinRatesData(symbolMoney.moneyType)
+                    getCoinRatesData(symbolMoney.moneyType)
                     delay(UPDATE_INTERVAL_120)
                 }
             } catch (e: Exception) {
@@ -78,18 +75,14 @@ class HomeViewModel : ViewModel() {
 
     private fun setCurrentMoney(symbolMoney: TypeMoneyEnum) {
         viewModelScope.launch {
-            try {
-                setResponseMoney(getCurrentCoinData(symbolMoney.moneyType), symbolMoney)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            getCurrentCoinData(symbolMoney)
         }
     }
 
     private fun setListMoney(symbolMoney: TypeMoneyEnum) {
         viewModelScope.launch {
             try {
-                _listMoney.value = getCoinRatesData(symbolMoney.moneyType)
+                getCoinRatesData(symbolMoney.moneyType)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -97,8 +90,13 @@ class HomeViewModel : ViewModel() {
     }
 
 
-    private suspend fun getCurrentCoinData(symbolMoney: String) =
-        moneyRepository.getCurrentCoinData(symbolMoney)
+    private suspend fun getCurrentCoinData(symbolMoney: TypeMoneyEnum) {
+        when (val result = moneyRepository.getCurrentCoinData(symbolMoney.moneyType)) {
+            is ResultWrapper.NetworkError -> null //showNetworkError()
+            is ResultWrapper.GenericError -> null //showGenericError(redditResponse)
+            is ResultWrapper.Success -> setResponseMoney(result.value, symbolMoney)
+        }
+    }
 
     private fun setResponseMoney(response: MoneyResponse, symbolMoney: TypeMoneyEnum) {
         _currentMoney.value = when (symbolMoney) {
@@ -108,10 +106,15 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private suspend fun getCoinRatesData(symbolMoney: String): List<Entry> {
-        val response = moneyRepository.getCoinRatesData(symbolMoney)
-        return response.mapIndexed { index, it ->
-            Entry(index.toFloat(), it.bid.toFloat())
+    private suspend fun getCoinRatesData(symbolMoney: String) {
+        when (val result = moneyRepository.getCoinRatesData(symbolMoney)) {
+            is ResultWrapper.NetworkError -> null //showNetworkError()
+            is ResultWrapper.GenericError -> null //showGenericError(redditResponse)
+            is ResultWrapper.Success -> {
+                _listMoney.value = result.value.mapIndexed { index, it ->
+                    Entry(index.toFloat(), it.bid.toFloat())
+                }
+            }
         }
     }
 
