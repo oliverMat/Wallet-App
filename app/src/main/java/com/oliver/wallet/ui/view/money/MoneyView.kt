@@ -33,7 +33,7 @@ import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.dataFormat
 import com.oliver.wallet.util.toDecimalFormat
 
-class HomeView {
+class MoneyView {
 
     @Composable
     fun View() {
