@@ -46,18 +46,21 @@ class MoneyViewModel : ViewModel() {
 
     fun selectMoneySymbol(symbolMoney: TypeMoney) {
         this.symbolMoney = symbolMoney
+        setLoadingStatus()
         setCurrentMoney(symbolMoney)
         setListMoney(symbolMoney)
     }
 
     private fun setCurrentMoney(symbolMoney: TypeMoney) {
         viewModelScope.launch {
+            delay(UPDATE_INTERVAL_1)
             getCurrentCoinData(symbolMoney)
         }
     }
 
     private fun setListMoney(symbolMoney: TypeMoney) {
         viewModelScope.launch {
+            delay(UPDATE_INTERVAL_1)
             getCoinRatesData(symbolMoney)
         }
     }
@@ -123,5 +126,6 @@ class MoneyViewModel : ViewModel() {
 
     companion object {
         private const val UPDATE_INTERVAL_30 = 30_000L
+        private const val UPDATE_INTERVAL_1 = 1_000L
     }
 }

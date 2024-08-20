@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,10 +44,13 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.oliver.wallet.R
+import com.oliver.wallet.data.model.MoneyModel
 import com.oliver.wallet.ui.view.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.DateValueFormatter
 import com.oliver.wallet.util.TypeMoney
+import com.oliver.wallet.util.dataFormat
+import com.oliver.wallet.util.toDecimalFormat
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -59,38 +63,12 @@ fun SingleSelectChipList(viewModel: MoneyViewModel) {
         contentAlignment = Alignment.Center, modifier = Modifier
             .padding(vertical = 5.dp, horizontal = 10.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.tertiary)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center, modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .size(35.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.money_icon),
-                        contentDescription = "Custom Money Icon",
-                    )
-                }
-                Text(
-                    text = "Moedas",
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.padding(start = 10.dp)
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .padding(start = 5.dp, bottom = 10.dp, end = 5.dp)
+                    .padding(start = 5.dp, end = 5.dp)
                     .horizontalScroll(rememberScrollState())
             ) {
                 listMoneyLabel.forEachIndexed { index, it ->
@@ -124,62 +102,88 @@ fun SingleSelectChipList(viewModel: MoneyViewModel) {
 }
 
 @Composable
-fun Price(
-    image: Int,
-    title: String,
-    textTop: String,
-    textMiddle: String,
-    textBottom: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+fun Price(price: MoneyModel?) {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(10.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .padding(bottom = 15.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(
-                contentAlignment = Alignment.Center, modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .size(35.dp)
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 15.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Image(
-                    painter = painterResource(id = image),
-                    contentDescription = "Custom Money Icon",
+                Box(
+                    contentAlignment = Alignment.Center, modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .size(35.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.money_icon),
+                        contentDescription = "Custom Money Icon",
+                    )
+                }
+                Text(
+                    text = "${price?.name}",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.padding(start = 10.dp)
                 )
             }
             Text(
-                text = title,
+                text = "${price?.bid?.toFloat()?.toDecimalFormat()}",
+                fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.background
+            )
+            Spacer(modifier = Modifier.size(6.dp))
+            Text(
+                text = "%: ${price?.pctChange}",
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.background,
-                modifier = Modifier.padding(start = 10.dp)
+                color = negativeValueColor("${price?.pctChange}")
+            )
+            Spacer(modifier = Modifier.size(20.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.arrow_up_24),
+                    contentDescription = "Custom Money Icon",
+                )
+                Text(
+                    text = "${price?.high?.toFloat()?.toDecimalFormat()}",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.background
+                )
+                Spacer(modifier = Modifier.size(5.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.arrow_down),
+                    contentDescription = "Custom Money Icon",
+                )
+                Text(
+                    text = "${price?.low?.toFloat()?.toDecimalFormat()}",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.background
+                )
+            }
+            Spacer(modifier = Modifier.size(15.dp))
+            Text(
+                text = "${price?.create_date?.dataFormat()}",
+                fontSize = 14.sp,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
-        Text(
-            text = textTop,
-            fontSize = 25.sp,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.background
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        Text(
-            text = textMiddle,
-            fontSize = 20.sp,
-            textAlign = TextAlign.Center,
-            color = negativeValueColor(textMiddle)
-        )
-        Spacer(modifier = Modifier.size(20.dp))
-        Text(
-            text = textBottom,
-            fontSize = 15.sp,
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
     }
 }
 
@@ -205,118 +209,192 @@ fun MoneyChart(listItems: List<Entry>?) {
         lineData = LineData(dataSet)
     }
 
-    AndroidView(
-        modifier = Modifier
-            .padding(top = 20.dp)
-            .fillMaxSize()
-            .height(370.dp),
-        factory = { context ->
-            LineChart(context).apply {
-                description.isEnabled = false // Remove the description
-                setTouchEnabled(false)
-                setPinchZoom(false)
-
-                xAxis.apply {
-                    setDrawGridLines(false) // Disable grid lines
-                    setDrawAxisLine(true) // Disable axis line
-                    setDrawLabels(true) // Disable the X axis labels
-                    textColor = secondaryColor
-                    position = XAxis.XAxisPosition.BOTTOM
-                    textSize = 14f // Set the font size for X axis labels
-                    spaceMin = 0.5f
-                    valueFormatter = DateValueFormatter()
-                    labelRotationAngle = -45f
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(10.dp)
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center, modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .size(35.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.show_chart_icon),
+                        contentDescription = "Custom Money Icon",
+                    )
                 }
-
-                axisLeft.apply {
-                    setDrawGridLines(false) // Disable grid lines
-                    setDrawAxisLine(false) // Disable axis line
-                    textSize = 14f // Set the font size for Y axis labels
-                    textColor = secondaryColor
-
-                }
-
-                axisRight.isEnabled = false // Disable the right Y axis
-                legend.isEnabled = false // Disable the legend
-
-                data = lineData
-                invalidate()
+                Text(
+                    text = "Ultimos 7 dias",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.padding(start = 10.dp)
+                )
             }
-        },
-        update = {
-            it.data = lineData
-            it.invalidate()
-        })
+            AndroidView(
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxSize()
+                    .height(400.dp),
+                factory = { context ->
+                    LineChart(context).apply {
+                        description.isEnabled = false // Remove the description
+                        setTouchEnabled(false)
+                        setPinchZoom(false)
+
+                        xAxis.apply {
+                            setDrawGridLines(false) // Disable grid lines
+                            setDrawAxisLine(true) // Disable axis line
+                            setDrawLabels(true) // Disable the X axis labels
+                            textColor = secondaryColor
+                            position = XAxis.XAxisPosition.BOTTOM
+                            textSize = 14f // Set the font size for X axis labels
+                            spaceMin = 0.5f
+                            valueFormatter = DateValueFormatter()
+                            labelRotationAngle = -45f
+                        }
+
+                        axisLeft.apply {
+                            setDrawGridLines(false) // Disable grid lines
+                            setDrawAxisLine(false) // Disable axis line
+                            textSize = 14f // Set the font size for Y axis labels
+                            textColor = secondaryColor
+
+                        }
+
+                        axisRight.isEnabled = false // Disable the right Y axis
+                        legend.isEnabled = false // Disable the legend
+
+                        data = lineData
+                        invalidate()
+                    }
+                },
+                update = {
+                    it.data = lineData
+                    it.invalidate()
+                })
+        }
+    }
 }
 
 @Composable
-fun PriceShimmerEffect(
-    image: Int,
-) {
-    return Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+fun PriceShimmerEffect() {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(10.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .padding(bottom = 15.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(
-                contentAlignment = Alignment.Center, modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .size(35.dp)
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 15.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Image(
-                    painter = painterResource(id = image),
-                    contentDescription = "Custom Money Icon",
+                Box(
+                    contentAlignment = Alignment.Center, modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .size(35.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.money_icon),
+                        contentDescription = "Custom Money Icon",
+                    )
+                }
+                ShimmerEffect(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp)
+                        .padding(start = 10.dp, end = 50.dp)
+                        .background(
+                            MaterialTheme.colorScheme.tertiary,
+                            RoundedCornerShape(10.dp)
+                        )
                 )
             }
             ShimmerEffect(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(20.dp)
-                    .padding(start = 10.dp, end = 50.dp)
+                    .height(135.dp)
+                    .padding(horizontal = 10.dp)
                     .background(
                         MaterialTheme.colorScheme.tertiary,
                         RoundedCornerShape(10.dp)
                     )
             )
         }
-        ShimmerEffect(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp)
-                .padding(horizontal = 130.dp)
-                .background(
-                    MaterialTheme.colorScheme.tertiary,
-                    RoundedCornerShape(10.dp)
+    }
+}
+
+@Composable
+fun GraphicShimmerEffect() {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(10.dp)
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center, modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .size(35.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.show_chart_icon),
+                        contentDescription = "Custom Money Icon",
+                    )
+                }
+                Text(
+                    text = "Ultimos 7 dias",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.padding(start = 10.dp)
                 )
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        ShimmerEffect(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(25.dp)
-                .padding(horizontal = 130.dp)
-                .background(
-                    MaterialTheme.colorScheme.tertiary,
-                    RoundedCornerShape(10.dp)
-                )
-        )
-        Spacer(modifier = Modifier.size(20.dp))
-        ShimmerEffect(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(20.dp)
-                .padding(horizontal = 130.dp)
-                .background(
-                    MaterialTheme.colorScheme.tertiary,
-                    RoundedCornerShape(10.dp)
-                )
-        )
+            }
+            ShimmerEffect(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .padding(
+                        start = 10.dp,
+                        end = 10.dp,
+                        top = 20.dp,
+                        bottom = 10.dp
+                    )
+                    .background(
+                        MaterialTheme.colorScheme.tertiary,
+                        RoundedCornerShape(10.dp)
+                    )
+            )
+        }
     }
 }
 

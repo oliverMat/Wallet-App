@@ -30,8 +30,6 @@ import com.oliver.wallet.R
 import com.oliver.wallet.ui.view.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
-import com.oliver.wallet.util.dataFormat
-import com.oliver.wallet.util.toDecimalFormat
 
 class MoneyView {
 
@@ -69,51 +67,20 @@ class MoneyView {
 
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             SingleSelectChipList(viewModel)
-            Box(
-                contentAlignment = Alignment.Center, modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(vertical = 5.dp, horizontal = 10.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(MaterialTheme.colorScheme.tertiary)
-                    .padding(10.dp)
-            ) {
-                Column {
-                    when (status) {
-                        ConnectionStatus.Success -> {
-                            Price(
-                                image = R.drawable.show_chart_icon,
-                                title = "${price?.name}",
-                                textTop = "R$: ${price?.bid?.toFloat()?.toDecimalFormat()}",
-                                textMiddle = "%: ${price?.pctChange}",
-                                textBottom = "${price?.create_date?.dataFormat()}"
-                            )
-                            MoneyChart(moneyChart)
-                        }
+            Column {
+                when (status) {
+                    ConnectionStatus.Success -> {
+                        Price(price)
+                        MoneyChart(moneyChart)
+                    }
 
-                        ConnectionStatus.Loading -> {
-                            PriceShimmerEffect(
-                                image = R.drawable.show_chart_icon
-                            )
-                            ShimmerEffect(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(370.dp)
-                                    .padding(
-                                        start = 10.dp,
-                                        end = 10.dp,
-                                        top = 20.dp,
-                                        bottom = 10.dp
-                                    )
-                                    .background(
-                                        MaterialTheme.colorScheme.tertiary,
-                                        RoundedCornerShape(10.dp)
-                                    )
-                            )
-                        }
+                    ConnectionStatus.Loading -> {
+                        PriceShimmerEffect()
+                        GraphicShimmerEffect()
+                    }
 
-                        ConnectionStatus.Error -> {
+                    ConnectionStatus.Error -> {
 
-                        }
                     }
                 }
             }
