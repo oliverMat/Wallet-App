@@ -1,9 +1,3 @@
 <resources>
     <string name="app_name">Wallet</string>
-
-    <string-array name="list_money_label">
-        <item>Dolar/Real</item>
-        <item>Euro/Real</item>
-        <item>Bitcoin/Real</item>
-    </string-array>
 </resources>
