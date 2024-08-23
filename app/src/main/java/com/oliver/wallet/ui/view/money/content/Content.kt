@@ -60,43 +60,35 @@ import kotlinx.coroutines.launch
 fun MenuTop(viewModel: MoneyViewModel) {
     var selectedButton by remember { mutableStateOf(false) }
 
-    Box(
-        contentAlignment = Alignment.Center, modifier = Modifier
-            .padding(vertical = 5.dp, horizontal = 10.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.background)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .padding(vertical = 5.dp, horizontal = 15.dp)
+            .horizontalScroll(rememberScrollState())
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(start = 5.dp)
-                .horizontalScroll(rememberScrollState())
-        ) {
-            Spacer(modifier = Modifier.size(8.dp))
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = if (!selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
-                shape = RoundedCornerShape(50),
-                modifier = Modifier.width(140.dp),
-                onClick = {
-                    selectedButton = false
-                    viewModel.selectMoneySymbol(TypeMoney.Dollar)
-                }) {
-                Text("Dolar/Real")
-            }
-            Spacer(modifier = Modifier.size(10.dp))
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = if (selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
-                shape = RoundedCornerShape(50),
-                modifier = Modifier.width(140.dp),
-                onClick = {
-                    selectedButton = true
-                    viewModel.selectMoneySymbol(TypeMoney.Euro)
-                }) {
-                Text("Euro/Real")
-            }
-            BottomSheetWithButton()
+        Spacer(modifier = Modifier.size(8.dp))
+        Button(
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (!selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
+            shape = RoundedCornerShape(50),
+            modifier = Modifier.width(140.dp),
+            onClick = {
+                selectedButton = false
+                viewModel.selectMoneySymbol(TypeMoney.Dollar)
+            }) {
+            Text("Dolar/Real")
         }
-
+        Spacer(modifier = Modifier.size(10.dp))
+        Button(
+            colors = ButtonDefaults.buttonColors(backgroundColor = if (selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
+            shape = RoundedCornerShape(50),
+            modifier = Modifier.width(140.dp),
+            onClick = {
+                selectedButton = true
+                viewModel.selectMoneySymbol(TypeMoney.Euro)
+            }) {
+            Text("Euro/Real")
+        }
+        BottomSheetWithButton()
     }
 }
 
@@ -183,6 +175,15 @@ fun PriceBox(price: MoneyModel?) {
                 color = MaterialTheme.colorScheme.onPrimary
             )
         }
+    }
+}
+
+@Composable
+fun negativeValueColor(value: String?): Color {
+    return if (value?.contains("-") == true) {
+        MaterialTheme.colorScheme.onError
+    } else {
+        MaterialTheme.colorScheme.primary
     }
 }
 
@@ -386,14 +387,5 @@ fun BottomSheetWithButton() {
             }
 
         }
-    }
-}
-
-@Composable
-fun negativeValueColor(value: String?): Color {
-    return if (value?.contains("-") == true) {
-        MaterialTheme.colorScheme.onError
-    } else {
-        MaterialTheme.colorScheme.primary
     }
 }
