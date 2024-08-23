@@ -1,4 +1,4 @@
-package com.oliver.wallet.ui
+package com.oliver.wallet.ui.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -1,4 +1,4 @@
-package com.oliver.wallet.ui.view
+package com.oliver.wallet.ui.view.common
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode

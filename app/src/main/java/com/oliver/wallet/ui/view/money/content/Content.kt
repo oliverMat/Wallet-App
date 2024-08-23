@@ -1,4 +1,4 @@
-package com.oliver.wallet.ui.view.money
+package com.oliver.wallet.ui.view.money.content
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

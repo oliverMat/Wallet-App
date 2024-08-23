@@ -1,4 +1,4 @@
-package com.oliver.wallet.ui.view.money
+package com.oliver.wallet.ui.view.money.content
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.oliver.wallet.R
-import com.oliver.wallet.ui.view.ShimmerEffect
+import com.oliver.wallet.ui.view.common.ShimmerEffect
 
 @Composable
 fun PriceShimmerEffect() {

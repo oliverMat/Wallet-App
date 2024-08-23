@@ -8,6 +8,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.oliver.wallet.ui.view.money.content.GraphicShimmerEffect
+import com.oliver.wallet.ui.view.money.content.MenuTop
+import com.oliver.wallet.ui.view.money.content.MoneyChart
+import com.oliver.wallet.ui.view.money.content.PriceBox
+import com.oliver.wallet.ui.view.money.content.PriceShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
 
