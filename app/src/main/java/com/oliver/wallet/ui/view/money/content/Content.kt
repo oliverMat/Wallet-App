@@ -3,7 +3,6 @@ package com.oliver.wallet.ui.view.money.content
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -42,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavHostController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -52,43 +51,69 @@ import com.oliver.wallet.data.model.MoneyModel
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.DateValueFormatter
 import com.oliver.wallet.util.TypeMoney
+import com.oliver.wallet.util.WalletScreen
 import com.oliver.wallet.util.dataFormat
 import com.oliver.wallet.util.toDecimalFormat
 import kotlinx.coroutines.launch
 
 @Composable
-fun MenuTop(viewModel: MoneyViewModel) {
+fun GridButtons(viewModel: MoneyViewModel) {
     var selectedButton by remember { mutableStateOf(false) }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(vertical = 5.dp, horizontal = 15.dp)
-            .horizontalScroll(rememberScrollState())
-    ) {
+    Row {
         Spacer(modifier = Modifier.size(8.dp))
-        Button(
-            colors = ButtonDefaults.buttonColors(backgroundColor = if (!selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
-            shape = RoundedCornerShape(50),
-            modifier = Modifier.width(140.dp),
+        SelectMoney(
+            "Dolar/Real",
+            if (!selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
             onClick = {
                 selectedButton = false
                 viewModel.selectMoneySymbol(TypeMoney.Dollar)
-            }) {
-            Text("Dolar/Real")
-        }
+            },
+        )
         Spacer(modifier = Modifier.size(10.dp))
-        Button(
-            colors = ButtonDefaults.buttonColors(backgroundColor = if (selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
-            shape = RoundedCornerShape(50),
-            modifier = Modifier.width(140.dp),
+        SelectMoney(
+            "Euro/Real",
+            if (selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
             onClick = {
                 selectedButton = true
                 viewModel.selectMoneySymbol(TypeMoney.Euro)
-            }) {
-            Text("Euro/Real")
-        }
-        BottomSheetWithButton()
+            },
+        )
+    }
+}
+
+@Composable
+fun SelectMoney(
+    label: String,
+    color: Color,
+    onClick: () -> Unit,
+    ) {
+    Button(
+        colors = ButtonDefaults.buttonColors(backgroundColor = color),
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.width(140.dp),
+        onClick = onClick
+    ) {
+        Text(label)
+    }
+}
+
+@Composable
+fun MoreMenuTopButton(onClick: () -> Unit) {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(start = 10.dp, end = 10.dp, top = 7.dp, bottom = 7.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.more_icon),
+            contentDescription = "Custom Money Icon",
+        )
     }
 }
 
@@ -290,29 +315,15 @@ fun MoneyChart(listItems: List<Entry>?) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetWithButton() {
+fun BottomSheetMoreOptions(navController: NavHostController) {
 
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
-    Box(
-        contentAlignment = Alignment.Center, modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.tertiary)
-            .padding(start = 10.dp, end = 10.dp, top = 7.dp, bottom = 7.dp)
-            .clickable {
-                showBottomSheet = true
-            }
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.more_icon),
-            contentDescription = "Custom Money Icon",
-        )
-    }
+    MoreMenuTopButton(onClick = {
+        showBottomSheet = true
+    })
 
     if (showBottomSheet) {
         ModalBottomSheet(
@@ -323,69 +334,65 @@ fun BottomSheetWithButton() {
             sheetState = sheetState
         ) {
             Column {
-                Text(
-                    text = "Mais Opções:",
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.padding(start = 15.dp, bottom = 15.dp)
-                )
-                Box(
-                    contentAlignment = Alignment.Center, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 5.dp, horizontal = 10.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .padding(15.dp)
-                        .clickable {
-                            scope
-                                .launch { sheetState.hide() }
-                                .invokeOnCompletion {
-                                    if (!sheetState.isVisible) {
-                                        showBottomSheet = false
-                                    }
-                                }
+                LabelOptions("Mais Opções:")
+                SelectOptions("Calculadora", onClick = {
+                    scope
+                        .launch { sheetState.hide() }
+                        .invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                                navController.navigate(WalletScreen.Calculator.name)
+                            }
                         }
-                ) {
-                    Text(
-                        text = "Calculadora",
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.tertiary,
-                    )
-                }
+                })
                 Spacer(modifier = Modifier.size(10.dp))
-                Box(
-                    contentAlignment = Alignment.Center, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 5.dp, horizontal = 10.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .padding(15.dp)
-                        .clickable {
-                            scope
-                                .launch { sheetState.hide() }
-                                .invokeOnCompletion {
-                                    if (!sheetState.isVisible) {
-                                        showBottomSheet = false
-                                    }
-                                }
+                SelectOptions("Expandir Grafico", onClick = {
+                    scope
+                        .launch { sheetState.hide() }
+                        .invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                                navController.navigate(WalletScreen.Calculator.name)
+                            }
                         }
-                ) {
-                    Text(
-                        text = "Expandir Grafico",
-                        fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.tertiary,
-                    )
-                }
+                })
                 Spacer(modifier = Modifier.size(30.dp))
-                Text(
-                    text = "Moedas:",
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.padding(start = 15.dp, bottom = 15.dp)
-                )
+                LabelOptions("Moedas:")
                 Spacer(modifier = Modifier.size(60.dp))
             }
 
         }
+    }
+}
+
+@Composable
+fun LabelOptions(label: String) {
+    Text(
+        text = label,
+        fontSize = 15.sp,
+        color = MaterialTheme.colorScheme.tertiary,
+        modifier = Modifier.padding(start = 15.dp, bottom = 15.dp)
+    )
+}
+
+@Composable
+fun SelectOptions(
+    label: String,
+    onClick: () -> Unit
+) {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.secondary)
+            .padding(15.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Text(
+            text = label,
+            fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.tertiary,
+        )
     }
 }

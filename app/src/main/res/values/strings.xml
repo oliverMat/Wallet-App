@@ -3,4 +3,6 @@
 
     <string name="nav_name_money">Dinheiro</string>
     <string name="nav_name_stock">Bolsa</string>
+    <string name="nav_name_calculator">Calculadora</string>
+    <string name="nav_name_money_graphic">Grafico</string>
 </resources>

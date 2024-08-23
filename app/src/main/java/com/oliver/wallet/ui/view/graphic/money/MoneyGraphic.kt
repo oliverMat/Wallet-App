@@ -1,4 +1,4 @@
-package com.oliver.wallet.ui.view.stock
+package com.oliver.wallet.ui.view.graphic.money
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -7,7 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.oliver.wallet.ui.theme.WalletTheme
 
 @Composable
-fun StockView(navController: NavHostController) {
+fun MoneyGraphicView(navController: NavHostController) {
 
 }
 
@@ -15,6 +15,6 @@ fun StockView(navController: NavHostController) {
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        StockView(rememberNavController())
+        MoneyGraphicView(rememberNavController())
     }
 }
