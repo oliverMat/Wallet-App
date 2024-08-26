@@ -8,11 +8,11 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -41,7 +41,6 @@ sealed class Screen(val route: String, val label: Int, val icon: Int?) {
 @Composable
 fun WalletAppBar(
     currentScreen: String,
-    canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -50,13 +49,11 @@ fun WalletAppBar(
         backgroundColor = MaterialTheme.colorScheme.secondary,
         modifier = modifier,
         navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "stringResource(R.string.back_button)"
-                    )
-                }
+            IconButton(onClick = navigateUp) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "stringResource(R.string.back_button)"
+                )
             }
         }
     )
@@ -68,11 +65,12 @@ fun WalletApp(navController: NavHostController = rememberNavController()) {
 
     Scaffold(
         topBar = {
-            WalletAppBar(
-                currentScreen = currentRoute(navController) ?: WalletScreen.Money.name,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
-            )
+            if (currentRoute(navController) !in bottomNavItems.map { it.route }) {
+                WalletAppBar(
+                    currentScreen = (currentRoute(navController)) ?: WalletScreen.Money.name,
+                    navigateUp = { navController.navigateUp() }
+                )
+            }
         },
         bottomBar = {
             if (currentRoute(navController) in bottomNavItems.map { it.route }) {
