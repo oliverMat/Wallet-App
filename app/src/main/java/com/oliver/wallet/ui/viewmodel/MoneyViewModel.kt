@@ -8,6 +8,8 @@ import com.oliver.wallet.data.model.MoneyResponse
 import com.oliver.wallet.data.network.ResultWrapper
 import com.oliver.wallet.data.network.money.MoneyRepository
 import com.oliver.wallet.util.ConnectionStatus
+import com.oliver.wallet.util.Constants.UPDATE_INTERVAL_1
+import com.oliver.wallet.util.Constants.UPDATE_INTERVAL_30
 import com.oliver.wallet.util.TypeMoney
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -122,10 +124,5 @@ class MoneyViewModel : ViewModel() {
 
     private fun setErrorStatus() {
         _connectionStatus.value = ConnectionStatus.Error
-    }
-
-    companion object {
-        private const val UPDATE_INTERVAL_30 = 30_000L
-        private const val UPDATE_INTERVAL_1 = 1_000L
     }
 }

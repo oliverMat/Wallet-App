@@ -41,18 +41,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.oliver.wallet.R
 import com.oliver.wallet.data.model.MoneyModel
 import com.oliver.wallet.ui.theme.WalletTheme
-import com.oliver.wallet.ui.viewmodel.MoneyViewModel
+import com.oliver.wallet.ui.viewmodel.CalculatorViewModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.toDecimalFormat
 
 @Composable
-fun CalculatorView(viewModel: MoneyViewModel = viewModel()) {
-    val status by viewModel.connectionStatus.collectAsState()
+fun CalculatorView(navController: NavHostController, viewModel: CalculatorViewModel = viewModel()) {
+    val status by viewModel.connectionState.collectAsState()
     val calculate by viewModel.calculateState.collectAsState()
-    val price by viewModel.price.collectAsState()
+    val price by viewModel.priceState.collectAsState()
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.tertiary)
@@ -64,10 +66,8 @@ fun CalculatorView(viewModel: MoneyViewModel = viewModel()) {
 
         when (status) {
             ConnectionStatus.Success -> {
-                val value = price?.bid?.toFloat()?.toDecimalFormat()
-
                 Spacer(modifier = Modifier.size(70.dp))
-                BoxResult(calculate, value)
+                BoxResult(calculate)
                 Spacer(modifier = Modifier.size(20.dp))
                 Image(
                     painter = painterResource(id = R.drawable.equal_icon),
@@ -75,7 +75,7 @@ fun CalculatorView(viewModel: MoneyViewModel = viewModel()) {
                     Modifier.size(30.dp)
                 )
                 Spacer(modifier = Modifier.size(20.dp))
-                BoxCurrentPrice(price, value)
+                BoxCurrentPrice(price)
                 Spacer(modifier = Modifier.size(20.dp))
                 Icon(
                     Icons.Default.Clear,
@@ -95,11 +95,10 @@ fun CalculatorView(viewModel: MoneyViewModel = viewModel()) {
             }
         }
     }
-
 }
 
 @Composable
-fun BoxResult(calculate: Float?, value: String?) {
+fun BoxResult(calculate: Float?) {
     Box(
         modifier = Modifier
             .border(
@@ -113,7 +112,7 @@ fun BoxResult(calculate: Float?, value: String?) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "${calculate?.toDecimalFormat() ?: value}",
+                text = "${calculate?.toDecimalFormat()}",
                 fontSize = 35.sp,
                 color = MaterialTheme.colorScheme.secondary,
                 maxLines = 1,
@@ -127,7 +126,7 @@ fun BoxResult(calculate: Float?, value: String?) {
 }
 
 @Composable
-fun BoxCurrentPrice(price: MoneyModel?, value: String?) {
+fun BoxCurrentPrice(price: MoneyModel?) {
     Box(
         modifier = Modifier
             .border(
@@ -145,7 +144,7 @@ fun BoxCurrentPrice(price: MoneyModel?, value: String?) {
                 contentDescription = null,
             )
             Text(
-                text = "$value",
+                text = "${price?.bid?.toFloat()?.toDecimalFormat()}",
                 fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.secondary
             )
@@ -160,7 +159,7 @@ fun BoxCurrentPrice(price: MoneyModel?, value: String?) {
 }
 
 @Composable
-fun SimpleOutlinedTextFieldSample(viewModel: MoneyViewModel) {
+fun SimpleOutlinedTextFieldSample(viewModel: CalculatorViewModel) {
     var text by remember { mutableStateOf("") }
 
     OutlinedTextField(
@@ -172,7 +171,7 @@ fun SimpleOutlinedTextFieldSample(viewModel: MoneyViewModel) {
             unfocusedBorderColor = MaterialTheme.colorScheme.secondary
         ),
         onValueChange = { newText ->
-            text = newText
+            text = filterInputText(newText)
             viewModel.calculate(text)
         },
         leadingIcon = {
@@ -196,10 +195,28 @@ fun SimpleOutlinedTextFieldSample(viewModel: MoneyViewModel) {
     )
 }
 
+fun filterInputText(input: String): String {
+    if (input.length == 1 && (input == "." || input == ",")) {
+        return ""
+    }
+    val sanitizedInput = input.replace(",", "")
+
+    val firstDotIndex = sanitizedInput.indexOf('.')
+
+    return if (firstDotIndex != -1) {
+        val beforeDot = sanitizedInput.substring(0, firstDotIndex + 1)
+        val afterDot = sanitizedInput.substring(firstDotIndex + 1).replace(".", "")
+        beforeDot + afterDot
+    } else {
+        sanitizedInput
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        CalculatorView()
+        CalculatorView(rememberNavController())
     }
 }
