@@ -352,7 +352,7 @@ fun BottomSheetMoreOptions(navController: NavHostController) {
                         .invokeOnCompletion {
                             if (!sheetState.isVisible) {
                                 showBottomSheet = false
-                                navController.navigate(WalletScreen.Calculator.name)
+                                navController.navigate(WalletScreen.MoneyGraphic.name)
                             }
                         }
                 })
