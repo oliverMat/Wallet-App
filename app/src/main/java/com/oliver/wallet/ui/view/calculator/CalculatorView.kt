@@ -267,7 +267,7 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiStat
         label.forEachIndexed { index, it ->
             val isSelected = it == selected
             Chip(
-                colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.secondary),
+                colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
                 onClick = {
                     selected = if (isSelected) selected else it
