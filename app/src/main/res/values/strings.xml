@@ -5,4 +5,9 @@
     <string name="nav_name_stock">Bolsa</string>
     <string name="nav_name_calculator">Calculadora</string>
     <string name="nav_name_money_graphic">Grafico</string>
+
+    <string-array name="list_money_label">
+        <item>Dolar/Real</item>
+        <item>Euro/Real</item>
+    </string-array>
 </resources>

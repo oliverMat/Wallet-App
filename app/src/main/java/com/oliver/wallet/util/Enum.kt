@@ -6,7 +6,6 @@ import com.oliver.wallet.R
 enum class TypeMoney(val moneyType: String) {
     Dollar("USD-BRL"),
     Euro("EUR-BRL"),
-    Bitcoin("BTC-BRL")
 }
 
 enum class ConnectionStatus() {

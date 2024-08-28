@@ -11,12 +11,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Chip
+import androidx.compose.material.ChipDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -34,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,9 +49,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.oliver.wallet.R
 import com.oliver.wallet.data.model.MoneyModel
+import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.ui.theme.WalletTheme
+import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
+import com.oliver.wallet.util.TypeMoney
 import com.oliver.wallet.util.toDecimalFormat
 
 @Composable
@@ -56,13 +66,12 @@ fun CalculatorView(viewModel: MoneyViewModel) {
             .background(MaterialTheme.colorScheme.tertiary)
             .fillMaxWidth()
             .fillMaxHeight()
-            .horizontalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
         when (uiState.connectionState) {
             ConnectionStatus.Success -> {
-                Spacer(modifier = Modifier.size(70.dp))
+                Spacer(modifier = Modifier.size(50.dp))
                 BoxResult(uiState.getCalculateResult())
                 Spacer(modifier = Modifier.size(20.dp))
                 Image(
@@ -79,17 +88,51 @@ fun CalculatorView(viewModel: MoneyViewModel) {
                     modifier = Modifier.size(30.dp),
                     contentDescription = null,
                 )
-                Spacer(modifier = Modifier.size(20.dp))
-                SimpleOutlinedTextFieldSample(viewModel)
             }
 
             ConnectionStatus.Loading -> {
+                Spacer(modifier = Modifier.size(50.dp))
+                ShimmerEffect(
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(71.dp)
+                        .background(
+                            MaterialTheme.colorScheme.tertiary,
+                            RoundedCornerShape(10.dp)
+                        )
+                )
+                Spacer(modifier = Modifier.size(20.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.equal_icon),
+                    contentDescription = null,
+                    Modifier.size(30.dp)
+                )
+                Spacer(modifier = Modifier.size(20.dp))
+                ShimmerEffect(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(50.dp)
+                        .background(
+                            MaterialTheme.colorScheme.tertiary,
+                            RoundedCornerShape(10.dp)
+                        )
+                )
+                Spacer(modifier = Modifier.size(20.dp))
+                Icon(
+                    Icons.Default.Clear,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(30.dp),
+                    contentDescription = null,
+                )
             }
 
             ConnectionStatus.Error -> {
 
             }
         }
+        Spacer(modifier = Modifier.size(20.dp))
+        SimpleOutlinedTextFieldSample(viewModel)
+        SingleSelectChipList(viewModel, uiState)
     }
 }
 
@@ -104,7 +147,7 @@ fun BoxResult(calculate: Float?) {
             )
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 20.dp, horizontal = 45.dp),
+            modifier = Modifier.padding(vertical = 15.dp, horizontal = 30.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -113,9 +156,7 @@ fun BoxResult(calculate: Float?) {
                 color = MaterialTheme.colorScheme.secondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = 200.dp)
+                modifier = Modifier.widthIn(max = 200.dp)
             )
         }
     }
@@ -135,10 +176,6 @@ fun BoxCurrentPrice(price: MoneyModel?) {
             modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.money_icon_white),
-                contentDescription = null,
-            )
             Text(
                 text = "${price?.bid?.toFloat()?.toDecimalFormat()}",
                 fontSize = 18.sp,
@@ -146,7 +183,7 @@ fun BoxCurrentPrice(price: MoneyModel?) {
             )
             Spacer(modifier = Modifier.size(5.dp))
             Text(
-                text = "${price?.codein}",
+                text = "${price?.code}",
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.secondary
             )
@@ -191,7 +228,7 @@ fun SimpleOutlinedTextFieldSample(viewModel: MoneyViewModel) {
     )
 }
 
-fun filterInputText(input: String): String {
+private fun filterInputText(input: String): String {
     if (input.length == 1 && (input == "." || input == ",")) {
         return ""
     }
@@ -205,6 +242,52 @@ fun filterInputText(input: String): String {
         beforeDot + afterDot
     } else {
         sanitizedInput
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiState) {
+    val label = stringArrayResource(R.array.list_money_label).toList()
+
+    var selected by remember {
+        mutableStateOf<String?>(
+            label[when (uiState.symbol) {
+                TypeMoney.Dollar -> 0
+                TypeMoney.Euro -> 1
+            }]
+        )
+    }
+
+    Row(
+        modifier = Modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(top = 10.dp)
+    ) {
+        label.forEachIndexed { index, it ->
+            val isSelected = it == selected
+            Chip(
+                colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.secondary),
+                modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+                onClick = {
+                    selected = if (isSelected) selected else it
+
+                    viewModel.selectMoneySymbol(
+                        when (index) {
+                            0 -> TypeMoney.Dollar
+                            else -> TypeMoney.Euro
+                        }
+                    )
+                },
+            ) {
+                Text(
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 19.dp),
+                    text = it,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
+        }
     }
 }
 

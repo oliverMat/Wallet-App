@@ -4,8 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class MoneyResponse(
         @SerializedName("USDBRL") val dollar: MoneyModel,
-        @SerializedName("EURBRL") val euro: MoneyModel,
-        @SerializedName("BTCBRL") val bitcoin: MoneyModel
+        @SerializedName("EURBRL") val euro: MoneyModel
 )
 
 data class MoneyModel(

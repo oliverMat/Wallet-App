@@ -100,7 +100,6 @@ class MoneyViewModel : ViewModel() {
                 price = when (symbolMoney) {
                     TypeMoney.Dollar -> response.dollar
                     TypeMoney.Euro -> response.euro
-                    TypeMoney.Bitcoin -> response.bitcoin
                 }
             )
         }
