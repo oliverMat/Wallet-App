@@ -40,21 +40,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.oliver.wallet.R
 import com.oliver.wallet.data.model.MoneyModel
 import com.oliver.wallet.ui.theme.WalletTheme
-import com.oliver.wallet.ui.viewmodel.CalculatorViewModel
+import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.toDecimalFormat
 
 @Composable
-fun CalculatorView(navController: NavHostController, viewModel: CalculatorViewModel = viewModel()) {
-    val status by viewModel.connectionState.collectAsState()
-    val calculate by viewModel.calculateState.collectAsState()
-    val price by viewModel.priceState.collectAsState()
+fun CalculatorView(viewModel: MoneyViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.tertiary)
@@ -64,10 +60,10 @@ fun CalculatorView(navController: NavHostController, viewModel: CalculatorViewMo
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        when (status) {
+        when (uiState.connectionState) {
             ConnectionStatus.Success -> {
                 Spacer(modifier = Modifier.size(70.dp))
-                BoxResult(calculate)
+                BoxResult(uiState.getCalculateResult())
                 Spacer(modifier = Modifier.size(20.dp))
                 Image(
                     painter = painterResource(id = R.drawable.equal_icon),
@@ -75,7 +71,7 @@ fun CalculatorView(navController: NavHostController, viewModel: CalculatorViewMo
                     Modifier.size(30.dp)
                 )
                 Spacer(modifier = Modifier.size(20.dp))
-                BoxCurrentPrice(price)
+                BoxCurrentPrice(uiState.price)
                 Spacer(modifier = Modifier.size(20.dp))
                 Icon(
                     Icons.Default.Clear,
@@ -159,7 +155,7 @@ fun BoxCurrentPrice(price: MoneyModel?) {
 }
 
 @Composable
-fun SimpleOutlinedTextFieldSample(viewModel: CalculatorViewModel) {
+fun SimpleOutlinedTextFieldSample(viewModel: MoneyViewModel) {
     var text by remember { mutableStateOf("") }
 
     OutlinedTextField(
@@ -217,6 +213,6 @@ fun filterInputText(input: String): String {
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        CalculatorView(rememberNavController())
+        CalculatorView(MoneyViewModel())
     }
 }

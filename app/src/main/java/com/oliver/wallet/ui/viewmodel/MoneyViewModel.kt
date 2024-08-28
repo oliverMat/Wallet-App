@@ -3,8 +3,8 @@ package com.oliver.wallet.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
-import com.oliver.wallet.data.model.MoneyModel
 import com.oliver.wallet.data.model.MoneyResponse
+import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.data.network.ResultWrapper
 import com.oliver.wallet.data.network.money.MoneyRepository
 import com.oliver.wallet.util.ConnectionStatus
@@ -14,43 +14,51 @@ import com.oliver.wallet.util.TypeMoney
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class MoneyViewModel : ViewModel() {
     private val moneyRepository = MoneyRepository()
 
-    private val _price = MutableStateFlow<MoneyModel?>(null)
-    val price: StateFlow<MoneyModel?> = _price
-
-    private val _moneyChart = MutableStateFlow<List<Entry>?>(null)
-    val moneyChart: StateFlow<List<Entry>?> = _moneyChart
-
-    private val _connectionStatus = MutableStateFlow(ConnectionStatus.Loading)
-    val connectionStatus: StateFlow<ConnectionStatus> = _connectionStatus
-
-    private var symbolMoney: TypeMoney = TypeMoney.Dollar
+    private val _uiState = MutableStateFlow(MoneyUiState())
+    val uiState: StateFlow<MoneyUiState> = _uiState.asStateFlow()
 
 
     init {
         loadPeriodically()
     }
 
-    private fun loadPeriodically() {
-        viewModelScope.launch {
-            while (isActive) {
-                getCurrentCoinData(symbolMoney)
-                getCoinRatesData(symbolMoney)
-                delay(UPDATE_INTERVAL_30)
-            }
+    fun selectMoneySymbol(symbolMoney: TypeMoney) {
+        _uiState.update { moneyUiState ->
+            moneyUiState.copy(
+                symbol = symbolMoney
+            )
+        }
+        setConnectionStatus(ConnectionStatus.Loading)
+        setCurrentMoney(symbolMoney)
+        setListMoney(symbolMoney)
+    }
+
+    fun calculate(value: String) {
+        val valueInsert = if (value.isEmpty()) 1f else value.toFloat()
+
+        _uiState.update { moneyUiState ->
+            moneyUiState.copy(
+                calculate = valueInsert
+            )
         }
     }
 
-    fun selectMoneySymbol(symbolMoney: TypeMoney) {
-        this.symbolMoney = symbolMoney
-        setLoadingStatus()
-        setCurrentMoney(symbolMoney)
-        setListMoney(symbolMoney)
+    private fun loadPeriodically() {
+        viewModelScope.launch {
+            while (isActive) {
+                getCurrentCoinData(_uiState.value.symbol)
+                getCoinRatesData(_uiState.value.symbol)
+                delay(UPDATE_INTERVAL_30)
+            }
+        }
     }
 
     private fun setCurrentMoney(symbolMoney: TypeMoney) {
@@ -71,58 +79,60 @@ class MoneyViewModel : ViewModel() {
     private suspend fun getCurrentCoinData(symbolMoney: TypeMoney) {
         when (val result = moneyRepository.getCurrentCoinData(symbolMoney.moneyType)) {
             is ResultWrapper.NetworkError -> {
-                setLoadingStatus()
+                setConnectionStatus(ConnectionStatus.Loading)
             }
 
             is ResultWrapper.GenericError -> {
                 println(result.code)
-                setErrorStatus()
+                setConnectionStatus(ConnectionStatus.Error)
             }
 
             is ResultWrapper.Success -> {
                 setResponseMoney(result.value, symbolMoney)
-                setSuccessStatus()
+                setConnectionStatus(ConnectionStatus.Success)
             }
         }
     }
 
     private fun setResponseMoney(response: MoneyResponse, symbolMoney: TypeMoney) {
-        _price.value = when (symbolMoney) {
-            TypeMoney.Dollar -> response.dollar
-            TypeMoney.Euro -> response.euro
-            TypeMoney.Bitcoin -> response.bitcoin
+        _uiState.update { moneyUiState ->
+            moneyUiState.copy(
+                price = when (symbolMoney) {
+                    TypeMoney.Dollar -> response.dollar
+                    TypeMoney.Euro -> response.euro
+                    TypeMoney.Bitcoin -> response.bitcoin
+                }
+            )
         }
     }
 
     private suspend fun getCoinRatesData(symbolMoney: TypeMoney) {
         when (val result = moneyRepository.getCoinRatesData(symbolMoney.moneyType)) {
             is ResultWrapper.NetworkError -> {
-                setLoadingStatus()
+                setConnectionStatus(ConnectionStatus.Loading)
             }
 
             is ResultWrapper.GenericError -> {
                 println(result.code)
-                setErrorStatus()
+                setConnectionStatus(ConnectionStatus.Error)
             }
 
             is ResultWrapper.Success -> {
-                _moneyChart.value = result.value.mapIndexed { index, it ->
-                    Entry(index.toFloat(), it.bid.toFloat())
+                _uiState.update { moneyUiState ->
+                    moneyUiState.copy(chart = result.value.mapIndexed { index, it ->
+                        Entry(index.toFloat(), it.bid.toFloat())
+                    })
                 }
-                setSuccessStatus()
+                setConnectionStatus(ConnectionStatus.Success)
             }
         }
     }
 
-    private fun setSuccessStatus() {
-        _connectionStatus.value = ConnectionStatus.Success
-    }
-
-    private fun setLoadingStatus() {
-        _connectionStatus.value = ConnectionStatus.Loading
-    }
-
-    private fun setErrorStatus() {
-        _connectionStatus.value = ConnectionStatus.Error
+    private fun setConnectionStatus(connectionState: ConnectionStatus) {
+        _uiState.update { moneyUiState ->
+            moneyUiState.copy(
+                connectionState = connectionState
+            )
+        }
     }
 }

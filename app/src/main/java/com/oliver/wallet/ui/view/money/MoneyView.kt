@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.oliver.wallet.ui.theme.WalletTheme
@@ -29,10 +28,8 @@ import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
 
 @Composable
-fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel = viewModel()) {
-    val status by viewModel.connectionStatus.collectAsState()
-    val price by viewModel.price.collectAsState()
-    val moneyChart by viewModel.moneyChart.collectAsState()
+fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(modifier = Modifier
         .verticalScroll(rememberScrollState())
@@ -48,10 +45,10 @@ fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel = view
             BottomSheetMoreOptions(navController)
         }
         Column {
-            when (status) {
+            when (uiState.connectionState) {
                 ConnectionStatus.Success -> {
-                    PriceBox(price)
-                    MoneyChart(moneyChart)
+                    PriceBox(uiState.price)
+                    MoneyChart(uiState.chart)
                 }
 
                 ConnectionStatus.Loading -> {
@@ -71,6 +68,6 @@ fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel = view
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        MoneyView(rememberNavController())
+        MoneyView(rememberNavController(), MoneyViewModel())
     }
 }

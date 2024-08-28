@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -29,6 +30,7 @@ import com.oliver.wallet.ui.view.calculator.CalculatorView
 import com.oliver.wallet.ui.view.graphic.money.MoneyGraphicView
 import com.oliver.wallet.ui.view.money.MoneyView
 import com.oliver.wallet.ui.view.stock.StockView
+import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.WalletScreen
 
 sealed class Screen(val route: String, val label: Int, val icon: Int?) {
@@ -60,7 +62,7 @@ fun WalletAppBar(
 }
 
 @Composable
-fun WalletApp(navController: NavHostController = rememberNavController()) {
+fun WalletApp(navController: NavHostController = rememberNavController(), viewModel: MoneyViewModel = viewModel()) {
     val bottomNavItems = listOf(Screen.Money, Screen.Stock)
 
     Scaffold(
@@ -83,9 +85,9 @@ fun WalletApp(navController: NavHostController = rememberNavController()) {
             startDestination = Screen.Money.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Money.route) { MoneyScreen(navController) }
+            composable(Screen.Money.route) { MoneyScreen(navController, viewModel) }
             composable(Screen.Stock.route) { StockScreen(navController) }
-            composable(Screen.Calculator.route) { CalculatorScreen(navController) }
+            composable(Screen.Calculator.route) { CalculatorScreen(viewModel) }
             composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(navController) }
         }
     }
@@ -136,8 +138,8 @@ private fun currentRoute(navController: NavController): String? {
 }
 
 @Composable
-private fun MoneyScreen(navController: NavHostController) {
-    MoneyView(navController)
+private fun MoneyScreen(navController: NavHostController, viewModel: MoneyViewModel) {
+    MoneyView(navController, viewModel)
 }
 
 @Composable
@@ -146,8 +148,8 @@ private fun StockScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun CalculatorScreen(navController: NavHostController) {
-    CalculatorView(navController)
+private fun CalculatorScreen(viewModel: MoneyViewModel) {
+    CalculatorView(viewModel)
 }
 
 @Composable
