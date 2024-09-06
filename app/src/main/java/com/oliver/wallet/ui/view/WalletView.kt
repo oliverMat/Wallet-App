@@ -47,21 +47,24 @@ sealed class Screen(val route: String, val label: Int, val icon: Int?) {
 fun WalletAppBar(
     currentScreen: String,
     navigateUp: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showNavigationIcon: Boolean
 ) {
     TopAppBar(
-        title = { Text(currentScreen, color = MaterialTheme.colorScheme.secondary) },
+        title = { Text(currentScreen, color = MaterialTheme.colorScheme.tertiary) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.tertiary
+            containerColor = MaterialTheme.colorScheme.secondary
         ),
         modifier = modifier,
         navigationIcon = {
-            IconButton(onClick = navigateUp) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    contentDescription = null
-                )
+            if (showNavigationIcon) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        contentDescription = null
+                    )
+                }
             }
         }
     )
@@ -73,12 +76,11 @@ fun WalletApp(navController: NavHostController = rememberNavController(), viewMo
 
     Scaffold(
         topBar = {
-            if (currentRoute(navController) !in bottomNavItems.map { it.route }) {
-                WalletAppBar(
-                    currentScreen = (currentRoute(navController)) ?: WalletScreen.Money.name,
-                    navigateUp = { navController.navigateUp() }
-                )
-            }
+            WalletAppBar(
+                currentScreen = (currentRoute(navController)) ?: WalletScreen.Money.name,
+                navigateUp = { navController.navigateUp() },
+                showNavigationIcon = showNavigationIcon(navController, bottomNavItems)
+            )
         },
         bottomBar = {
             if (currentRoute(navController) in bottomNavItems.map { it.route }) {
@@ -141,6 +143,11 @@ private fun BottomNavigationBar(navController: NavController, bottomNavItems: Li
 private fun currentRoute(navController: NavController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return navBackStackEntry?.destination?.route
+}
+
+@Composable
+private fun showNavigationIcon(navController: NavHostController, bottomNavItems: List<Screen>): Boolean {
+    return (currentRoute(navController) !in bottomNavItems.map { it.route })
 }
 
 @Composable

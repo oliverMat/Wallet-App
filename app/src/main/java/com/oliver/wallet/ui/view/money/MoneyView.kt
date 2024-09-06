@@ -1,5 +1,6 @@
 package com.oliver.wallet.ui.view.money
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,16 +16,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Chip
+import androidx.compose.material.ChipDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,6 +57,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.oliver.wallet.R
 import com.oliver.wallet.data.model.MoneyModel
+import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.ui.theme.WalletTheme
 import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
@@ -69,153 +73,188 @@ import kotlinx.coroutines.launch
 fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Column(modifier = Modifier
-        .verticalScroll(rememberScrollState())
-        .padding(top = 10.dp)) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-        ) {
-            GridButtons(viewModel)
-            BottomSheetMoreOptions(navController)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
+        SingleSelectChipList(viewModel, uiState)
+        when (uiState.connectionState) {
+            ConnectionStatus.Success -> {
+                PriceBox(uiState.price, navController)
+                Spacer(modifier = Modifier.size(5.dp))
+                VariantBox(uiState.price)
+                MoneyChart(uiState.chart, navController)
+                DateBox(uiState.price)
+            }
+
+            ConnectionStatus.Loading -> {
+//                PriceShimmerEffect()
+//                GraphicShimmerEffect()
+            }
+
+            ConnectionStatus.Error -> {
+
+            }
         }
-        Column {
-            when (uiState.connectionState) {
-                ConnectionStatus.Success -> {
-                    PriceBox(uiState.price)
-                    MoneyChart(uiState.chart)
-                }
+    }
+}
 
-                ConnectionStatus.Loading -> {
-                    PriceShimmerEffect()
-                    GraphicShimmerEffect()
-                }
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiState) {
+    val label = stringArrayResource(R.array.list_money_label).toList()
 
-                ConnectionStatus.Error -> {
+    var selected by remember {
+        mutableStateOf<String?>(
+            label[when (uiState.symbol) {
+                TypeMoney.Dollar -> 0
+                TypeMoney.Euro -> 1
+            }]
+        )
+    }
 
-                }
+    Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState())
+    ) {
+        label.forEachIndexed { index, it ->
+            val isSelected = it == selected
+            Chip(
+                colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
+                modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+                onClick = {
+                    selected = if (isSelected) selected else it
+
+                    viewModel.selectMoneySymbol(
+                        when (index) {
+                            0 -> TypeMoney.Dollar
+                            else -> TypeMoney.Euro
+                        }
+                    )
+                },
+            ) {
+                Text(
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 19.dp),
+                    text = it,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
             }
         }
     }
 }
 
 @Composable
-fun GridButtons(viewModel: MoneyViewModel) {
-    var selectedButton by remember { mutableStateOf(false) }
-
-    Row {
-        Spacer(modifier = Modifier.size(8.dp))
-        SelectMoney(
-            "Dolar/Real",
-            if (!selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
-            onClick = {
-                selectedButton = false
-                viewModel.selectMoneySymbol(TypeMoney.Dollar)
-            },
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        SelectMoney(
-            "Euro/Real",
-            if (selectedButton) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
-            onClick = {
-                selectedButton = true
-                viewModel.selectMoneySymbol(TypeMoney.Euro)
-            },
-        )
-    }
-}
-
-@Composable
-fun SelectMoney(
-    label: String,
-    color: Color,
-    onClick: () -> Unit,
-) {
-    Button(
-        colors = ButtonDefaults.buttonColors(backgroundColor = color),
-        shape = RoundedCornerShape(50),
-        modifier = Modifier.width(140.dp),
-        onClick = onClick
-    ) {
-        Text(label)
-    }
-}
-
-@Composable
-fun MoreMenuTopButton(onClick: () -> Unit) {
+fun CustomButton(image: Int, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center, modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.tertiary)
-            .padding(start = 10.dp, end = 10.dp, top = 7.dp, bottom = 7.dp)
+            .padding(8.dp)
             .clickable(onClick = onClick)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.more_icon),
+            painter = painterResource(id = image),
             contentDescription = "Custom Money Icon",
         )
     }
 }
 
 @Composable
-fun PriceBox(price: MoneyModel?) {
+fun PriceBox(price: MoneyModel?, navController: NavHostController) {
     Box(
         contentAlignment = Alignment.Center, modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .padding(horizontal = 5.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.tertiary)
-            .padding(10.dp)
+            .padding(20.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(bottom = 15.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center, modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .size(35.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.money_icon),
-                        contentDescription = "Custom Money Icon",
-                    )
-                }
+            Text(
+                text = "1 ${price?.code} é igual a:",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.background,
+                modifier = Modifier.padding(start = 10.dp)
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.money_icon_white),
+                    contentDescription = "Custom Money Icon",
+                    Modifier.size(26.dp)
+                )
                 Text(
-                    text = "${price?.name}",
+                    text = "${price?.bid?.toFloat()?.toDecimalFormat()}",
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.background
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(
+                    text = "-",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.background
+                )
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(
+                    text = "%: ${price?.pctChange}",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.padding(start = 10.dp)
+                    color = negativeValueColor("${price?.pctChange}")
                 )
             }
+            Spacer(modifier = Modifier.size(20.dp))
+            OutlinedButton(border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                onClick = {
+                    navController.navigate(WalletScreen.Calculator.name)
+                }) {
+                Text(
+                    "Calculadora",
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun negativeValueColor(value: String?): Color {
+    return if (value?.contains("-") == true) {
+        MaterialTheme.colorScheme.onError
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+}
+
+@Composable
+fun VariantBox(price: MoneyModel?) {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .padding(horizontal = 5.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(15.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
-                text = "${price?.bid?.toFloat()?.toDecimalFormat()}",
-                fontSize = 30.sp,
-                textAlign = TextAlign.Center,
+                text = "Variação do dia:",
+                textAlign = TextAlign.Start,
                 color = MaterialTheme.colorScheme.background
             )
-            Spacer(modifier = Modifier.size(6.dp))
-            Text(
-                text = "%: ${price?.pctChange}",
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                color = negativeValueColor("${price?.pctChange}")
-            )
-            Spacer(modifier = Modifier.size(20.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Spacer(modifier = Modifier.size(10.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Image(
                     painter = painterResource(id = R.drawable.arrow_up_24),
                     contentDescription = "Custom Money Icon",
@@ -238,28 +277,42 @@ fun PriceBox(price: MoneyModel?) {
                     color = MaterialTheme.colorScheme.background
                 )
             }
-            Spacer(modifier = Modifier.size(15.dp))
+        }
+    }
+}
+
+@Composable
+fun DateBox(price: MoneyModel?) {
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .padding(horizontal = 5.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(15.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Ultima atualização:",
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.background
+            )
+            Spacer(modifier = Modifier.size(10.dp))
             Text(
                 text = "${price?.create_date?.dataFormat()}",
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.background
             )
         }
     }
 }
 
 @Composable
-fun negativeValueColor(value: String?): Color {
-    return if (value?.contains("-") == true) {
-        MaterialTheme.colorScheme.onError
-    } else {
-        MaterialTheme.colorScheme.primary
-    }
-}
-
-@Composable
-fun MoneyChart(listItems: List<Entry>?) {
+fun MoneyChart(listItems: List<Entry>?, navController: NavHostController) {
     var lineData by remember { mutableStateOf(LineData()) }
 
     val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
@@ -283,39 +336,19 @@ fun MoneyChart(listItems: List<Entry>?) {
     Box(
         contentAlignment = Alignment.Center, modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .padding(5.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.tertiary)
             .padding(10.dp)
     ) {
-        Column {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center, modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .size(35.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.show_chart_icon),
-                        contentDescription = "Custom Money Icon",
-                    )
-                }
-                Text(
-                    text = "Ultimos 7 dias",
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.padding(start = 10.dp)
-                )
-            }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "Ultimos 7 dias",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.background,
+            )
             AndroidView(
                 modifier = Modifier
-                    .padding(top = 10.dp)
                     .fillMaxSize()
                     .height(400.dp),
                 factory = { context ->
@@ -355,6 +388,17 @@ fun MoneyChart(listItems: List<Entry>?) {
                     it.data = lineData
                     it.invalidate()
                 })
+            Spacer(modifier = Modifier.size(25.dp))
+            OutlinedButton(border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 25.dp),
+                onClick = { }) {
+                Text(
+                    "Expandir grafico",
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
     }
 }
@@ -367,9 +411,9 @@ fun BottomSheetMoreOptions(navController: NavHostController) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
 
-    MoreMenuTopButton(onClick = {
-        showBottomSheet = true
-    })
+//    CustomButton(onClick = {
+//        showBottomSheet = true
+//    })
 
     if (showBottomSheet) {
         ModalBottomSheet(
