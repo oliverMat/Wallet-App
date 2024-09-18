@@ -119,7 +119,7 @@ class MoneyViewModel : ViewModel() {
             is ResultWrapper.Success -> {
                 _uiState.update { moneyUiState ->
                     moneyUiState.copy(chart = result.value.mapIndexed { index, it ->
-                        Entry(index.toFloat(), it.bid.toFloat())
+                        Entry(index.toFloat(), it.bid!!.toFloat())
                     })
                 }
                 setConnectionStatus(ConnectionStatus.Success)
