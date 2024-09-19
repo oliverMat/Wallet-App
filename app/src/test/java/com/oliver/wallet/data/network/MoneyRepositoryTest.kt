@@ -1,10 +1,8 @@
-package com.oliver.wallet.network
+package com.oliver.wallet.data.network
 
 import com.oliver.wallet.data.model.MoneyModel
 import com.oliver.wallet.data.model.MoneyResponse
-import com.oliver.wallet.data.network.ResultWrapper
 import com.oliver.wallet.data.network.money.MoneyRepository
-import com.oliver.wallet.data.network.safeApiCall
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
