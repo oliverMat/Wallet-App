@@ -28,11 +28,11 @@ fun ShimmerEffect(
 
 
     val shimmerColors = listOf(
+        Color.White.copy(alpha = 0.1f),
         Color.White.copy(alpha = 0.3f),
-        Color.White.copy(alpha = 0.5f),
-        Color.White.copy(alpha = 1.0f),
-        Color.White.copy(alpha = 0.5f),
+        Color.LightGray.copy(alpha = 0.4f),
         Color.White.copy(alpha = 0.3f),
+        Color.White.copy(alpha = 0.1f),
     )
 
     val transition = rememberInfiniteTransition(label = "")

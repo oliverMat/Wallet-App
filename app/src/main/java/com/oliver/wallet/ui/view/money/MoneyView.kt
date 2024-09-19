@@ -81,15 +81,13 @@ fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
         when (uiState.connectionState) {
             ConnectionStatus.Success -> {
                 PriceBox(uiState.price, navController)
-                Spacer(modifier = Modifier.size(5.dp))
                 VariantBox(uiState.price)
                 MoneyChart(uiState.chart, navController)
                 DateBox(uiState.price)
             }
 
             ConnectionStatus.Loading -> {
-//                PriceShimmerEffect()
-//                GraphicShimmerEffect()
+                EffectShimmerEffect()
             }
 
             ConnectionStatus.Error -> {
@@ -163,7 +161,7 @@ fun PriceBox(price: MoneyModel?, navController: NavHostController) {
     Box(
         contentAlignment = Alignment.Center, modifier = Modifier
             .fillMaxHeight()
-            .padding(horizontal = 5.dp)
+            .padding(horizontal = 5.dp, vertical = 5.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.tertiary)
             .padding(20.dp)
@@ -488,52 +486,20 @@ fun SelectOptions(
 }
 
 @Composable
-fun PriceShimmerEffect() {
+fun EffectShimmerEffect() {
     Box(
         contentAlignment = Alignment.Center, modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .padding(horizontal = 5.dp, vertical = 5.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.tertiary)
-            .padding(10.dp)
+            .padding(15.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(bottom = 15.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center, modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .size(35.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.money_icon),
-                        contentDescription = "Custom Money Icon",
-                    )
-                }
-                ShimmerEffect(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(20.dp)
-                        .padding(start = 10.dp, end = 50.dp)
-                        .background(
-                            MaterialTheme.colorScheme.tertiary,
-                            RoundedCornerShape(10.dp)
-                        )
-                )
-            }
+        Column {
             ShimmerEffect(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(135.dp)
-                    .padding(horizontal = 10.dp)
                     .background(
                         MaterialTheme.colorScheme.tertiary,
                         RoundedCornerShape(10.dp)
@@ -541,53 +507,59 @@ fun PriceShimmerEffect() {
             )
         }
     }
-}
-
-@Composable
-fun GraphicShimmerEffect() {
     Box(
         contentAlignment = Alignment.Center, modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = 5.dp, horizontal = 10.dp)
+            .padding(horizontal = 5.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.tertiary)
-            .padding(10.dp)
+            .padding(15.dp)
     ) {
         Column {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center, modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .size(35.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.show_chart_icon),
-                        contentDescription = "Custom Money Icon",
+            ShimmerEffect(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(
+                        MaterialTheme.colorScheme.tertiary,
+                        RoundedCornerShape(10.dp)
                     )
-                }
-                Text(
-                    text = "Ultimos 7 dias",
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.padding(start = 10.dp)
-                )
-            }
+            )
+        }
+    }
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .padding(5.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(15.dp)
+    ) {
+        Column {
             ShimmerEffect(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(400.dp)
-                    .padding(
-                        start = 10.dp,
-                        end = 10.dp,
-                        top = 20.dp,
-                        bottom = 10.dp
+                    .background(
+                        MaterialTheme.colorScheme.tertiary,
+                        RoundedCornerShape(10.dp)
                     )
+            )
+        }
+    }
+    Box(
+        contentAlignment = Alignment.Center, modifier = Modifier
+            .fillMaxHeight()
+            .padding(horizontal = 5.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(15.dp)
+    ) {
+        Column {
+            ShimmerEffect(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
                     .background(
                         MaterialTheme.colorScheme.tertiary,
                         RoundedCornerShape(10.dp)

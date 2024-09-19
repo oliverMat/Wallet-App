@@ -79,7 +79,7 @@ class MoneyViewModel : ViewModel() {
     private suspend fun getCurrentCoinData(symbolMoney: TypeMoney) {
         when (val result = moneyRepository.getCurrentCoinData(symbolMoney.moneyType)) {
             is ResultWrapper.NetworkError -> {
-                setConnectionStatus(ConnectionStatus.Loading)
+                setConnectionStatus(ConnectionStatus.Error)
             }
 
             is ResultWrapper.GenericError -> {
@@ -108,7 +108,7 @@ class MoneyViewModel : ViewModel() {
     private suspend fun getCoinRatesData(symbolMoney: TypeMoney) {
         when (val result = moneyRepository.getCoinRatesData(symbolMoney.moneyType)) {
             is ResultWrapper.NetworkError -> {
-                setConnectionStatus(ConnectionStatus.Loading)
+                setConnectionStatus(ConnectionStatus.Error)
             }
 
             is ResultWrapper.GenericError -> {
