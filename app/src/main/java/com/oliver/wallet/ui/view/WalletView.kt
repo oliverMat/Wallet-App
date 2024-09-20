@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -51,10 +52,8 @@ fun WalletAppBar(
     showNavigationIcon: Boolean
 ) {
     TopAppBar(
-        title = { Text(currentScreen, color = MaterialTheme.colorScheme.tertiary) },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.secondary
-        ),
+        title = { Text(currentScreen, fontSize = 18.sp, color = MaterialTheme.colorScheme.secondary) },
+        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = MaterialTheme.colorScheme.tertiary),
         modifier = modifier,
         navigationIcon = {
             if (showNavigationIcon) {

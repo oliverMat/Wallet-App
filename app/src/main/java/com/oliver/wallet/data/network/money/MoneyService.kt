@@ -11,6 +11,6 @@ interface MoneyService {
     @GET("json/last/{symbol}")
     suspend fun getCurrentCoinData(@Path("symbol") symbol: String): MoneyResponse
 
-    @GET("json/daily/{symbol}/7")
+    @GET("json/daily/{symbol}/4")
     suspend fun getCoinRatesData(@Path("symbol") symbol: String): List<MoneyModel>
 }

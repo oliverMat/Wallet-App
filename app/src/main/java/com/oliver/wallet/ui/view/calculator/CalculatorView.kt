@@ -1,5 +1,6 @@
 package com.oliver.wallet.ui.view.calculator
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -267,7 +268,11 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiStat
         label.forEachIndexed { index, it ->
             val isSelected = it == selected
             Chip(
-                colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
+                border = BorderStroke(
+                    1.dp,
+                    if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary,
+                ),
+                colors = ChipDefaults.chipColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
                 onClick = {
                     selected = if (isSelected) selected else it
@@ -284,7 +289,7 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiStat
                     modifier = Modifier.padding(vertical = 8.dp, horizontal = 19.dp),
                     text = it,
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
         }
