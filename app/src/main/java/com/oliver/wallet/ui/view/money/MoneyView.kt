@@ -1,7 +1,9 @@
 package com.oliver.wallet.ui.view.money
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -80,6 +82,8 @@ fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
                 Spacer(modifier = Modifier.size(40.dp))
                 Chart(uiState.chart)
                 Spacer(modifier = Modifier.size(10.dp))
+                Date(uiState.price)
+                Spacer(modifier = Modifier.size(10.dp))
             }
 
             ConnectionStatus.Loading -> {
@@ -115,8 +119,6 @@ fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
                         onClick = { navController.navigate(WalletScreen.MoneyGraphic.name) }
                     )
                 }
-                Spacer(modifier = Modifier.size(30.dp))
-                Date(uiState.price)
             }
         }
     }
@@ -144,6 +146,10 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiStat
             label.forEachIndexed { index, it ->
                 val isSelected = it == selected
                 Chip(
+                    border = BorderStroke(
+                        width = 1.5.dp,
+                        if (isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
+                    ),
                     colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
                     onClick = {
@@ -336,30 +342,21 @@ fun Chart(listItems: List<Entry>?) {
 
 @Composable
 fun Date(price: MoneyModel?) {
-    Box(
-        contentAlignment = Alignment.Center, modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.secondary)
-            .padding(15.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "Ultima atualização:",
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-            Spacer(modifier = Modifier.size(10.dp))
-            Text(
-                text = "${price?.create_date?.dataFormat()}",
-                fontSize = 15.sp,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-        }
+        Text(
+            text = "Ultima atualização:",
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        Spacer(modifier = Modifier.size(10.dp))
+        Text(
+            text = "${price?.create_date?.dataFormat()}",
+            fontSize = 15.sp,
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
@@ -369,6 +366,11 @@ fun ButtonBox(text: String, icon: Int, modifier: Modifier, onClick: () -> Unit) 
         contentAlignment = Alignment.Center, modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp)
+            .border(
+                width = 1.5.dp,
+                color = MaterialTheme.colorScheme.tertiary,
+                shape = RoundedCornerShape(14.dp)
+            )
             .clip(RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
             .background(MaterialTheme.colorScheme.primary)
@@ -390,7 +392,7 @@ fun EffectShimmerEffect() {
     ShimmerEffect(
         modifier = Modifier
             .fillMaxWidth()
-            .height(333.dp)
+            .height(387.5.dp)
             .padding(10.dp)
             .background(
                 MaterialTheme.colorScheme.tertiary,
