@@ -112,11 +112,11 @@ private fun BottomNavigationBar(navController: NavController, bottomNavItems: Li
                         contentDescription = "Custom Icon",
                     )
                 },
-                modifier = Modifier.background(MaterialTheme.colorScheme.secondary),
+                modifier = Modifier.background(MaterialTheme.colorScheme.tertiary),
                 label = {
                     Text(
                         stringResource(screen.label),
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 },
                 selected = currentRoute == screen.route,
@@ -131,7 +131,7 @@ private fun BottomNavigationBar(navController: NavController, bottomNavItems: Li
                         }
                     }
                 },
-                selectedContentColor = MaterialTheme.colorScheme.primary,
+                selectedContentColor = MaterialTheme.colorScheme.secondary,
                 alwaysShowLabel = false
             )
         }
