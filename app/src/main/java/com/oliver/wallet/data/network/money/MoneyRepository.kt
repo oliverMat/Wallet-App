@@ -14,9 +14,9 @@ class MoneyRepository {
         }
     }
 
-    suspend fun getCoinRatesData(symbol: String): ResultWrapper<List<MoneyModel>> {
+    suspend fun getCoinDailyFixedDate(symbol: String): ResultWrapper<List<MoneyModel>> {
         return safeApiCall {
-            api_money.getCoinRatesData(symbol)
+            api_money.getCoinDailyFixedDate(symbol)
         }
     }
 }
