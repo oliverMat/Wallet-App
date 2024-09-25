@@ -288,7 +288,7 @@ fun Chart(listItems: List<Entry>?) {
         modifier = Modifier.padding(horizontal = 40.dp)
     ) {
         Text(
-            text = "Ultimos 4 dias",
+            text = "Ultimos 5 dias",
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.background,
             modifier = Modifier.padding(bottom = 10.dp)
