@@ -1,5 +1,6 @@
 package com.oliver.wallet.ui.view
 
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.oliver.wallet.R
 import com.oliver.wallet.ui.view.calculator.CalculatorView
+import com.oliver.wallet.ui.view.common.LockScreenOrientation
 import com.oliver.wallet.ui.view.graphic.money.MoneyGraphicView
 import com.oliver.wallet.ui.view.money.MoneyView
 import com.oliver.wallet.ui.view.stock.StockView
@@ -95,7 +97,7 @@ fun WalletApp(navController: NavHostController = rememberNavController(), viewMo
             composable(Screen.Money.route) { MoneyScreen(navController, viewModel) }
             composable(Screen.Stock.route) { StockScreen(navController) }
             composable(Screen.Calculator.route) { CalculatorScreen(viewModel) }
-            composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(navController) }
+            composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(viewModel) }
         }
     }
 }
@@ -151,20 +153,24 @@ private fun showNavigationIcon(navController: NavHostController, bottomNavItems:
 
 @Composable
 private fun MoneyScreen(navController: NavHostController, viewModel: MoneyViewModel) {
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     MoneyView(navController, viewModel)
 }
 
 @Composable
 private fun StockScreen(navController: NavHostController) {
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     StockView(navController)
 }
 
 @Composable
 private fun CalculatorScreen(viewModel: MoneyViewModel) {
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     CalculatorView(viewModel)
 }
 
 @Composable
-private fun MoneyGraphicScreen(navController: NavHostController) {
-    MoneyGraphicView(navController)
+private fun MoneyGraphicScreen(viewModel: MoneyViewModel) {
+    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+    MoneyGraphicView(viewModel)
 }

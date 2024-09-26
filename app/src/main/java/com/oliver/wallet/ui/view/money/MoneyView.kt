@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.github.mikephil.charting.charts.LineChart
@@ -54,6 +55,7 @@ import com.oliver.wallet.R
 import com.oliver.wallet.data.model.MoneyModel
 import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.ui.theme.WalletTheme
+import com.oliver.wallet.ui.view.common.ComposableLifecycle
 import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
@@ -66,6 +68,8 @@ import com.oliver.wallet.util.toDecimalFormat
 @Composable
 fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LifeCycle(viewModel)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -120,6 +124,18 @@ fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun LifeCycle(viewModel: MoneyViewModel) {
+    ComposableLifecycle { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_CREATE -> {
+                viewModel.setPeriodChart()
+            }
+            else -> {}
         }
     }
 }
