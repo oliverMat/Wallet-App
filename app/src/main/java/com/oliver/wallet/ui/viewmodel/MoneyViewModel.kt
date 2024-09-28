@@ -8,6 +8,7 @@ import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.data.network.ResultWrapper
 import com.oliver.wallet.data.network.money.MoneyRepository
 import com.oliver.wallet.util.ConnectionStatus
+import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.Constants.UPDATE_INTERVAL_1
 import com.oliver.wallet.util.Constants.UPDATE_INTERVAL_30
 import com.oliver.wallet.util.TypeMoney
@@ -51,11 +52,16 @@ class MoneyViewModel : ViewModel() {
         }
     }
 
+    fun setPeriodChart(daily: String = DAILY_STANDARD) {
+        viewModelScope.launch {
+            getCoinDaily(_uiState.value.symbol, daily)
+        }
+    }
+
     private fun loadPeriodically() {
         viewModelScope.launch {
             while (isActive) {
                 getCurrentCoinData(_uiState.value.symbol)
-                getCoinRatesData(_uiState.value.symbol)
                 delay(UPDATE_INTERVAL_30)
             }
         }
@@ -71,7 +77,7 @@ class MoneyViewModel : ViewModel() {
     private fun setListMoney(symbolMoney: TypeMoney) {
         viewModelScope.launch {
             delay(UPDATE_INTERVAL_1)
-            getCoinRatesData(symbolMoney)
+            getCoinDaily(symbolMoney)
         }
     }
 
@@ -105,8 +111,8 @@ class MoneyViewModel : ViewModel() {
         }
     }
 
-    private suspend fun getCoinRatesData(symbolMoney: TypeMoney) {
-        when (val result = moneyRepository.getCoinRatesData(symbolMoney.moneyType)) {
+    private suspend fun getCoinDaily(symbolMoney: TypeMoney, daily: String = DAILY_STANDARD) {
+        when (val result = moneyRepository.getCoinDaily(symbolMoney.moneyType, daily)) {
             is ResultWrapper.NetworkError -> {
                 setConnectionStatus(ConnectionStatus.Error)
             }

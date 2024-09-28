@@ -10,7 +10,7 @@ class DateValueFormatter : ValueFormatter() {
 
     private val dateFormat = SimpleDateFormat("dd-MM", Locale.getDefault())
 
-    private val dateList = List(7) {//adiciona 7 dias, apartir do dia atual
+    private val dateList = List(365) {//adiciona 7 dias, apartir do dia atual
         Calendar.getInstance().apply {
             add(Calendar.DAY_OF_YEAR, -it)
         }.time

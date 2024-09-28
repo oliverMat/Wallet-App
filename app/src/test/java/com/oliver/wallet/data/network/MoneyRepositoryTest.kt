@@ -42,17 +42,17 @@ class MoneyRepositoryTest {
     }
 
     @Test
-    fun getCoinDailyFixedDate_ReturnsSuccess() = runBlocking {
+    fun getCoinDaily_ReturnsSuccess() = runBlocking {
         // GIVEN
         val mockMoneyModel = mock(MoneyModel::class.java)  // Mock de MoneyModel
         val mockList = listOf(mockMoneyModel)
         val mockResponse = safeApiCall { mockList }
 
         // WHEN
-        `when`(repository.getCoinDailyFixedDate("")).thenReturn(mockResponse)
+        `when`(repository.getCoinDaily("", "")).thenReturn(mockResponse)
 
         // THEN
-        val result = repository.getCoinDailyFixedDate("")
+        val result = repository.getCoinDaily("", "")
         assertEquals(mockResponse, result)
     }
 
@@ -76,15 +76,15 @@ class MoneyRepositoryTest {
     }
 
     @Test
-    fun getCoinDailyFixedDate_negativeResponse_HttpException() = runBlocking {
+    fun getCoinDaily_negativeResponse_HttpException() = runBlocking {
 
         val errorBody = "{\"message\": [\"Bad Request\"]}".toResponseBody("application/json".toMediaTypeOrNull())
         val httpException = HttpException(Response.error<Any>(404, errorBody))
 
-        `when`(repository.getCoinDailyFixedDate("")).thenThrow(httpException)
+        `when`(repository.getCoinDaily("", "")).thenThrow(httpException)
 
         val result = safeApiCall {
-            repository.getCoinDailyFixedDate("")
+            repository.getCoinDaily("", "")
         }
 
         assert(result is ResultWrapper.GenericError)
@@ -106,12 +106,12 @@ class MoneyRepositoryTest {
     }
 
     @Test
-    fun getCoinDailyFixedDate_negativeResponse_GenericError() = runBlocking {
+    fun getCoinDaily_negativeResponse_GenericError() = runBlocking {
 
-        `when`(repository.getCoinDailyFixedDate("")).thenThrow(IllegalStateException())
+        `when`(repository.getCoinDaily("", "")).thenThrow(IllegalStateException())
 
         val result = safeApiCall {
-            repository.getCoinDailyFixedDate("")
+            repository.getCoinDaily("", "")
         }
 
         assertEquals(ResultWrapper.GenericError(), result)
@@ -132,14 +132,14 @@ class MoneyRepositoryTest {
     }
 
     @Test
-    fun getCoinDailyFixedDate_IOException() = runBlocking {
+    fun getCoinDaily_IOException() = runBlocking {
 
-        given(repository.getCoinDailyFixedDate("")).willAnswer {
+        given(repository.getCoinDaily("", "")).willAnswer {
             throw IOException()
         }
 
         val result = safeApiCall {
-            repository.getCoinDailyFixedDate("")
+            repository.getCoinDaily("", "")
         }
 
         assertEquals(result, ResultWrapper.NetworkError)
