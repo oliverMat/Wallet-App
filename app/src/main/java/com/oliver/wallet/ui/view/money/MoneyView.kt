@@ -135,6 +135,7 @@ private fun LifeCycle(viewModel: MoneyViewModel) {
             Lifecycle.Event.ON_CREATE -> {
                 viewModel.setPeriodChart()
             }
+
             else -> {}
         }
     }
@@ -163,8 +164,7 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiStat
                 val isSelected = it == selected
                 Chip(
                     border = BorderStroke(
-                        width = 1.5.dp,
-                        if (isSelected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
+                        width = 1.0.dp, MaterialTheme.colorScheme.tertiary
                     ),
                     colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
@@ -383,7 +383,7 @@ fun ButtonBox(text: String, icon: Int, modifier: Modifier, onClick: () -> Unit) 
             .fillMaxWidth()
             .padding(horizontal = 10.dp)
             .border(
-                width = 1.5.dp,
+                width = 1.dp,
                 color = MaterialTheme.colorScheme.tertiary,
                 shape = RoundedCornerShape(14.dp)
             )
