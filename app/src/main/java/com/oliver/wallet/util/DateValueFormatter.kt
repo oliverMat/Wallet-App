@@ -8,7 +8,7 @@ import java.util.Locale
 
 class DateValueFormatter : ValueFormatter() {
 
-    private val dateFormat = SimpleDateFormat("dd-MM", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("dd-MMM", Locale.getDefault())
 
     private val dateList = List(365) {//adiciona 7 dias, apartir do dia atual
         Calendar.getInstance().apply {

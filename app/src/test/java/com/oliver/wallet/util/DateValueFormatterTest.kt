@@ -12,9 +12,9 @@ class DateValueFormatterTest {
 
     @Test
     fun testGetAxisLabelForValidIndices() {
-        val dateFormat = SimpleDateFormat("dd-MM", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("dd-MMM", Locale.getDefault())
 
-        for (i in 0 until 30) {
+        for (i in 0 until 365) {
             val expectedDate = Calendar.getInstance().apply {
                 add(Calendar.DAY_OF_YEAR, -i)
             }.time
@@ -27,7 +27,7 @@ class DateValueFormatterTest {
     @Test
     fun testGetAxisLabelForOutRangeIndex() {
         // Testando um índice fora do intervalo (por exemplo, 7)
-        val actualLabel = dateValueFormatter.getAxisLabel(30f, null)
+        val actualLabel = dateValueFormatter.getAxisLabel(365f, null)
         assertEquals("", actualLabel)
     }
 
