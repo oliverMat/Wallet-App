@@ -2,6 +2,7 @@ package com.oliver.wallet.data.model
 
 import com.github.mikephil.charting.data.Entry
 import com.oliver.wallet.util.ConnectionStatus
+import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.TypeMoney
 
 data class MoneyUiState(
@@ -10,6 +11,7 @@ data class MoneyUiState(
     val price: MoneyModel? = null,
     val chart: List<Entry>? = null,
     val calculate: Float = 1f,
+    val dailyChart: String = DAILY_STANDARD
 ){
 
     fun getCalculateResult(): Float {

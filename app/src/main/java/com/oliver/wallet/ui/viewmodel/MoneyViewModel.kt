@@ -39,7 +39,7 @@ class MoneyViewModel : ViewModel() {
         }
         setConnectionStatus(ConnectionStatus.Loading)
         setCurrentMoney(symbolMoney)
-        setListMoney(symbolMoney)
+        setChart(symbolMoney)
     }
 
     fun calculate(value: String) {
@@ -53,6 +53,12 @@ class MoneyViewModel : ViewModel() {
     }
 
     fun setPeriodChart(daily: String = DAILY_STANDARD) {
+        _uiState.update { moneyUiState ->
+            moneyUiState.copy(
+                dailyChart = daily
+            )
+        }
+        setConnectionStatus(ConnectionStatus.Loading)
         viewModelScope.launch {
             getCoinDaily(_uiState.value.symbol, daily)
         }
@@ -69,20 +75,18 @@ class MoneyViewModel : ViewModel() {
 
     private fun setCurrentMoney(symbolMoney: TypeMoney) {
         viewModelScope.launch {
-            delay(UPDATE_INTERVAL_1)
             getCurrentCoinData(symbolMoney)
         }
     }
 
-    private fun setListMoney(symbolMoney: TypeMoney) {
+    private fun setChart(symbolMoney: TypeMoney) {
         viewModelScope.launch {
-            delay(UPDATE_INTERVAL_1)
-            getCoinDaily(symbolMoney)
+            getCoinDaily(symbolMoney, _uiState.value.dailyChart)
         }
     }
 
-
     private suspend fun getCurrentCoinData(symbolMoney: TypeMoney) {
+        delay(UPDATE_INTERVAL_1)
         when (val result = moneyRepository.getCurrentCoinData(symbolMoney.moneyType)) {
             is ResultWrapper.NetworkError -> {
                 setConnectionStatus(ConnectionStatus.Error)
@@ -112,6 +116,7 @@ class MoneyViewModel : ViewModel() {
     }
 
     private suspend fun getCoinDaily(symbolMoney: TypeMoney, daily: String = DAILY_STANDARD) {
+        delay(UPDATE_INTERVAL_1)
         when (val result = moneyRepository.getCoinDaily(symbolMoney.moneyType, daily)) {
             is ResultWrapper.NetworkError -> {
                 setConnectionStatus(ConnectionStatus.Error)

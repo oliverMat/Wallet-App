@@ -1,20 +1,27 @@
 package com.oliver.wallet.ui.view.graphic.money
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Chip
+import androidx.compose.material.ChipDefaults
 import androidx.compose.material.DropdownMenu
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -37,10 +45,14 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.oliver.wallet.R
+import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.ui.theme.WalletTheme
+import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.DateValueFormatter
+import com.oliver.wallet.util.TypeMoney
 
 
 @Composable
@@ -51,18 +63,143 @@ fun MoneyGraphicView(viewModel: MoneyViewModel) {
         modifier = Modifier
             .background(MaterialTheme.colorScheme.tertiary)
     ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Spacer(modifier = Modifier.size(20.dp))
+            SingleSelectChipList(viewModel, uiState, Modifier.weight(1f))
+            DropDown(viewModel)
+            Spacer(modifier = Modifier.size(20.dp))
+        }
         when (uiState.connectionState) {
             ConnectionStatus.Success -> {
-                DropDownDemo(viewModel)
                 Chart(uiState.chart)
             }
 
             ConnectionStatus.Loading -> {
-
+                EffectShimmerEffect()
             }
 
             ConnectionStatus.Error -> {
 
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun SingleSelectChipList(
+    viewModel: MoneyViewModel,
+    uiState: MoneyUiState,
+    modifier: Modifier
+) {
+    val label = stringArrayResource(R.array.list_money_label).toList()
+
+    var selected by remember {
+        mutableStateOf<String?>(
+            label[when (uiState.symbol) {
+                TypeMoney.Dollar -> 0
+                TypeMoney.Euro -> 1
+            }]
+        )
+    }
+
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState())
+        ) {
+            label.forEachIndexed { index, it ->
+                val isSelected = it == selected
+                Chip(
+                    border = BorderStroke(
+                        width = 1.0.dp,
+                        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                    ),
+                    colors = ChipDefaults.chipColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+                    onClick = {
+                        selected = if (isSelected) selected else it
+
+                        viewModel.selectMoneySymbol(
+                            when (index) {
+                                0 -> TypeMoney.Dollar
+                                else -> TypeMoney.Euro
+                            }
+                        )
+                    },
+                ) {
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 19.dp),
+                        text = it,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DropDown(viewModel: MoneyViewModel) {
+
+    val isDropDownExpanded = remember {
+        mutableStateOf(false)
+    }
+
+    val itemPosition = remember {
+        mutableIntStateOf(0)
+    }
+
+    val list = listOf(
+        "5 Dias" to "5",
+        "15 Dias" to "15",
+        "1 Mês" to "30",
+        "2 Mesês" to "60",
+        "3 Mesês" to "90",
+        "6 Mesês" to "180",
+        "1 Ano" to "365"
+    )
+
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
+        isDropDownExpanded.value = true
+    }) {
+        Text(text = "Periodo:", color = MaterialTheme.colorScheme.secondary)
+        Spacer(modifier = Modifier.size(10.dp))
+        Box(
+            modifier = Modifier
+                .width(75.dp)
+                .height(35.dp)
+                .border(
+                    width = 1.dp, // Largura da borda
+                    color = MaterialTheme.colorScheme.secondary, // Cor da borda
+                    shape = RoundedCornerShape(20.dp) // Forma arredondada
+                )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Text(
+                    text = list[itemPosition.intValue].first,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+            DropdownMenu(
+                expanded = isDropDownExpanded.value,
+                onDismissRequest = {
+                    isDropDownExpanded.value = false
+                }) {
+                list.forEachIndexed { index, period ->
+                    DropdownMenuItem(text = {
+                        Text(text = period.first)
+                    },
+                        onClick = {
+                            isDropDownExpanded.value = false
+                            itemPosition.intValue = index
+                            viewModel.setPeriodChart(period.second)
+                        })
+                }
             }
         }
     }
@@ -116,8 +253,8 @@ fun Chart(listItems: List<Entry>?) {
                         spaceMin = 0.5f
                         valueFormatter = DateValueFormatter()
                         axisMinimum = 0f
-                        labelRotationAngle = -45f
-                        isGranularityEnabled = false
+                        labelRotationAngle = 0f
+                        isGranularityEnabled = true
                     }
 
                     axisLeft.apply {
@@ -143,70 +280,17 @@ fun Chart(listItems: List<Entry>?) {
 }
 
 @Composable
-fun DropDownDemo(viewModel: MoneyViewModel) {
-
-    val isDropDownExpanded = remember {
-        mutableStateOf(false)
-    }
-
-    val itemPosition = remember {
-        mutableIntStateOf(0)
-    }
-
-    val list = listOf(
-        "5 Dias" to "5",
-        "15 Dias" to "15",
-        "1 Mês" to "30",
-        "2 Mesês" to "60",
-        "3 Mesês" to "90",
-        "6 Mesês" to "180",
-        "1 Ano" to "365"
+fun EffectShimmerEffect() {
+    ShimmerEffect(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(387.5.dp)
+            .padding(10.dp)
+            .background(
+                MaterialTheme.colorScheme.tertiary,
+                RoundedCornerShape(10.dp)
+            )
     )
-
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
-        isDropDownExpanded.value = true
-    }) {
-        Text(text = "Periodo", color = MaterialTheme.colorScheme.secondary)
-        Spacer(modifier = Modifier.size(10.dp))
-        Box(
-            modifier = Modifier
-                .width(70.dp)
-                .height(30.dp)
-                .border(
-                    width = 2.dp, // Largura da borda
-                    color = MaterialTheme.colorScheme.secondary, // Cor da borda
-                    shape = RoundedCornerShape(20.dp) // Forma arredondada
-                )
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Text(
-                    text = list[itemPosition.intValue].first,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                viewModel.setPeriodChart(list[itemPosition.intValue].second)
-            }
-            DropdownMenu(
-                expanded = isDropDownExpanded.value,
-                onDismissRequest = {
-                    isDropDownExpanded.value = false
-                }) {
-                list.forEachIndexed { index, username ->
-                    DropdownMenuItem(text = {
-                        Text(text = username.first)
-                    },
-                        onClick = {
-                            isDropDownExpanded.value = false
-                            itemPosition.intValue = index
-                        })
-                }
-            }
-        }
-    }
 }
 
 @Preview(showBackground = true)
