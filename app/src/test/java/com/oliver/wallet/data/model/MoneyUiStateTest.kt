@@ -1,12 +1,21 @@
 package com.oliver.wallet.data.model
 
 import com.oliver.wallet.util.ConnectionStatus
+import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.TypeMoney
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import kotlin.reflect.full.memberProperties
 
 class MoneyUiStateTest {
+
+    @Test
+    fun testCountFieldsInModel() {
+        val fieldCount = MoneyUiState::class.memberProperties.size
+
+        assertEquals(6, fieldCount)
+    }
 
     @Test
     fun testDefaultMoneyUiStateValues() {
@@ -21,6 +30,8 @@ class MoneyUiStateTest {
         assertNull(uiState.chart)
 
         assertEquals(1f, uiState.calculate, 0.0f)
+
+        assertEquals(uiState.dailyChart, DAILY_STANDARD)
     }
 
     @Test

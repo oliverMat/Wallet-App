@@ -90,4 +90,6 @@ dependencies {
 
     implementation(libs.mpandroidchart)
 
+    implementation (libs.kotlin.reflect)
+
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
+import kotlin.reflect.full.memberProperties
 
 class MoneyModelTest {
 
@@ -71,5 +72,19 @@ class MoneyModelTest {
         assertEquals("6.4200", moneyResponse.euro.ask)
         assertEquals("1633024800", moneyResponse.euro.timestamp)
         assertEquals("2024-09-17 10:00:00", moneyResponse.euro.create_date)
+    }
+
+    @Test
+    fun testCountFieldsInModel() {
+        val fieldCount = MoneyModel::class.memberProperties.size
+
+        assertEquals(11, fieldCount)
+    }
+
+    @Test
+    fun testCountFieldsInResponse() {
+        val fieldCount = MoneyResponse::class.memberProperties.size
+
+        assertEquals(2, fieldCount)
     }
 }
