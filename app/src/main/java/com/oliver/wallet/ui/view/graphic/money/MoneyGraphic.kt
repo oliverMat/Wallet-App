@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,6 +49,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.oliver.wallet.R
 import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.ui.theme.WalletTheme
+import com.oliver.wallet.ui.view.common.CustomMarkerView
 import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
@@ -212,6 +214,8 @@ fun Chart(listItems: List<Entry>?) {
     val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
     val secondaryColor = MaterialTheme.colorScheme.secondary.toArgb()
 
+    val customMarkerView = CustomMarkerView(LocalContext.current)
+
     LaunchedEffect(listItems) {
         val dataSet = LineDataSet(listItems, "").apply {
             color = primaryColor
@@ -225,14 +229,16 @@ fun Chart(listItems: List<Entry>?) {
             mode = LineDataSet.Mode.HORIZONTAL_BEZIER
             valueTextSize = 14f
             valueTextColor = secondaryColor
+            setDrawHighlightIndicators(false)
         }
         lineData = LineData(dataSet)
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.End,
         modifier = Modifier.padding(40.dp)
     ) {
+        Text("*Deslize pelo grafico para ver mais", color = MaterialTheme.colorScheme.secondary)
         AndroidView(
             modifier = Modifier
                 .fillMaxSize()
@@ -240,8 +246,9 @@ fun Chart(listItems: List<Entry>?) {
             factory = { context ->
                 LineChart(context).apply {
                     description.isEnabled = false // Remove the description
-                    setTouchEnabled(false)
+                    setTouchEnabled(true)
                     setPinchZoom(false)
+                    setScaleEnabled(false)
 
                     xAxis.apply {
                         setDrawGridLines(false) // Disable grid lines
@@ -262,8 +269,10 @@ fun Chart(listItems: List<Entry>?) {
                         setDrawAxisLine(false) // Disable axis line
                         textSize = 14f // Set the font size for Y axis labels
                         textColor = secondaryColor
-
                     }
+
+                    customMarkerView.setMarkerView(listItems)
+                    marker = customMarkerView
 
                     axisRight.isEnabled = false // Disable the right Y axis
                     legend.isEnabled = false // Disable the legend
@@ -274,6 +283,8 @@ fun Chart(listItems: List<Entry>?) {
             },
             update = {
                 it.data = lineData
+                customMarkerView.setMarkerView(listItems)
+                it.marker = customMarkerView
                 it.invalidate()
             })
     }
