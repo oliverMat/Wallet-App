@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Chip
 import androidx.compose.material.ChipDefaults
 import androidx.compose.material.DropdownMenu
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -63,16 +65,25 @@ fun MoneyGraphicView(viewModel: MoneyViewModel) {
 
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.tertiary)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Spacer(modifier = Modifier.size(20.dp))
             SingleSelectChipList(viewModel, uiState, Modifier.weight(1f))
-            DropDown(viewModel)
+            Spacer(modifier = Modifier.size(10.dp))
+            MinMaxInList(uiState)
             Spacer(modifier = Modifier.size(20.dp))
+            DropDown(viewModel)
         }
         when (uiState.connectionState) {
             ConnectionStatus.Success -> {
+                Spacer(modifier = Modifier.size(20.dp))
+                Text(
+                    "*Deslize pelo grafico para ver mais",
+                    color = MaterialTheme.colorScheme.secondary
+                )
                 Chart(uiState.chart)
             }
 
@@ -141,6 +152,27 @@ private fun SingleSelectChipList(
 }
 
 @Composable
+fun MinMaxInList(chart: MoneyUiState) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("Max:", color = MaterialTheme.colorScheme.secondary)
+        Spacer(modifier = Modifier.size(5.dp))
+        Text(
+            "${chart.getMaxYDecimalChart()}\n${chart.getDateMaxChart()}",
+            color = MaterialTheme.colorScheme.secondary,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.size(20.dp))
+        Text("Min:", color = MaterialTheme.colorScheme.secondary)
+        Spacer(modifier = Modifier.size(5.dp))
+        Text(
+            "${chart.getMinYDecimalChart()}\n${chart.getDateMinChart()}",
+            color = MaterialTheme.colorScheme.secondary,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
 fun DropDown(viewModel: MoneyViewModel) {
 
     val isDropDownExpanded = remember {
@@ -164,8 +196,6 @@ fun DropDown(viewModel: MoneyViewModel) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
         isDropDownExpanded.value = true
     }) {
-        Text(text = "Periodo:", color = MaterialTheme.colorScheme.secondary)
-        Spacer(modifier = Modifier.size(10.dp))
         Box(
             modifier = Modifier
                 .width(75.dp)
@@ -231,14 +261,27 @@ fun Chart(listItems: List<Entry>?) {
             valueTextColor = secondaryColor
             setDrawHighlightIndicators(false)
         }
-        lineData = LineData(dataSet)
+
+        val minEntry = listItems?.minByOrNull { it.y }
+        val maxEntry = listItems?.maxByOrNull { it.y }
+
+        val minMaxEntries = listOfNotNull(minEntry, maxEntry)
+        val minMaxDataSet = LineDataSet(minMaxEntries, "").apply {
+            color = secondaryColor
+            setCircleColor(primaryColor)
+            circleRadius = 7f
+            setDrawValues(true)
+            valueTextSize = 14f
+            valueTextColor = secondaryColor
+        }
+
+        lineData = LineData(dataSet, minMaxDataSet)
     }
 
     Column(
-        horizontalAlignment = Alignment.End,
-        modifier = Modifier.padding(40.dp)
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(bottom = 15.dp)
     ) {
-        Text("*Deslize pelo grafico para ver mais", color = MaterialTheme.colorScheme.secondary)
         AndroidView(
             modifier = Modifier
                 .fillMaxSize()
