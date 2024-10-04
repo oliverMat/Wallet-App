@@ -63,6 +63,17 @@ import com.oliver.wallet.util.TypeMoney
 fun MoneyGraphicView(viewModel: MoneyViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
+    when (uiState.connectionState) {
+        ConnectionStatus.Success -> SuccessScreen(uiState, viewModel)
+
+        ConnectionStatus.Loading -> LoadingScreen(uiState)
+
+        ConnectionStatus.Error -> ErrorScreen()
+    }
+}
+
+@Composable
+private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -77,31 +88,60 @@ fun MoneyGraphicView(viewModel: MoneyViewModel) {
             Spacer(modifier = Modifier.size(20.dp))
             DropDown(viewModel)
         }
-        when (uiState.connectionState) {
-            ConnectionStatus.Success -> {
-                Spacer(modifier = Modifier.size(20.dp))
-                Text(
-                    "*Deslize pelo grafico para ver mais",
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                Chart(uiState.chart)
-            }
-
-            ConnectionStatus.Loading -> {
-                EffectShimmerEffect()
-            }
-
-            ConnectionStatus.Error -> {
-
-            }
-        }
+        Spacer(modifier = Modifier.size(20.dp))
+        DescriptionChart()
+        Chart(uiState.chart)
     }
+}
+
+@Composable
+private fun LoadingScreen(uiState: MoneyUiState) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.tertiary)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SingleSelectChipList(null, uiState, Modifier.weight(1f))
+            Spacer(modifier = Modifier.size(10.dp))
+            ShimmerEffect(
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(40.dp)
+                    .background(
+                        MaterialTheme.colorScheme.tertiary,
+                        RoundedCornerShape(10.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.size(20.dp))
+            DropDown(null)
+        }
+        Spacer(modifier = Modifier.size(20.dp))
+        DescriptionChart()
+        ShimmerEffect(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(210.dp)
+                .padding(10.dp)
+                .background(
+                    MaterialTheme.colorScheme.tertiary,
+                    RoundedCornerShape(10.dp)
+                )
+        )
+    }
+}
+
+@Composable
+private fun ErrorScreen() {
+
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun SingleSelectChipList(
-    viewModel: MoneyViewModel,
+    viewModel: MoneyViewModel?,
     uiState: MoneyUiState,
     modifier: Modifier
 ) {
@@ -130,6 +170,8 @@ private fun SingleSelectChipList(
                     colors = ChipDefaults.chipColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
                     onClick = {
+                        viewModel ?: return@Chip
+
                         selected = if (isSelected) selected else it
 
                         viewModel.selectMoneySymbol(
@@ -173,7 +215,7 @@ fun MinMaxInList(chart: MoneyUiState) {
 }
 
 @Composable
-fun DropDown(viewModel: MoneyViewModel) {
+fun DropDown(viewModel: MoneyViewModel?) {
 
     val isDropDownExpanded = remember {
         mutableStateOf(false)
@@ -194,6 +236,7 @@ fun DropDown(viewModel: MoneyViewModel) {
     )
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
+        viewModel ?: return@clickable
         isDropDownExpanded.value = true
     }) {
         Box(
@@ -227,6 +270,8 @@ fun DropDown(viewModel: MoneyViewModel) {
                         Text(text = period.first)
                     },
                         onClick = {
+                            TODO()
+                            viewModel ?: return@DropdownMenuItem
                             isDropDownExpanded.value = false
                             itemPosition.intValue = index
                             viewModel.setPeriodChart(period.second)
@@ -235,6 +280,14 @@ fun DropDown(viewModel: MoneyViewModel) {
             }
         }
     }
+}
+
+@Composable
+private fun DescriptionChart() {
+    Text(
+        "*Deslize pelo grafico para ver mais",
+        color = MaterialTheme.colorScheme.secondary
+    )
 }
 
 @Composable
@@ -331,20 +384,6 @@ fun Chart(listItems: List<Entry>?) {
                 it.invalidate()
             })
     }
-}
-
-@Composable
-fun EffectShimmerEffect() {
-    ShimmerEffect(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-            .padding(10.dp)
-            .background(
-                MaterialTheme.colorScheme.tertiary,
-                RoundedCornerShape(10.dp)
-            )
-    )
 }
 
 @Preview(showBackground = true)
