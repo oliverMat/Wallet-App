@@ -338,7 +338,7 @@ fun EffectShimmerEffect() {
     ShimmerEffect(
         modifier = Modifier
             .fillMaxWidth()
-            .height(387.5.dp)
+            .height(250.dp)
             .padding(10.dp)
             .background(
                 MaterialTheme.colorScheme.tertiary,
