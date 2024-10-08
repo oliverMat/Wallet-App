@@ -10,4 +10,13 @@
         <item>Dolar/Real</item>
         <item>Euro/Real</item>
     </string-array>
+
+    <string name="money_graphic_5_days">5 Dias</string>
+    <string name="money_graphic_15_days">15 Dias</string>
+    <string name="money_graphic_1_months">1 Mês</string>
+    <string name="money_graphic_2_months">2 Mesês</string>
+    <string name="money_graphic_3_months">3 Mesês</string>
+    <string name="money_graphic_6_months">6 Mesês</string>
+    <string name="money_graphic_1_year">1 Ano</string>
+    <string name="money_graphic_description_chart">*Deslize pelo grafico para ver mais</string>
 </resources>

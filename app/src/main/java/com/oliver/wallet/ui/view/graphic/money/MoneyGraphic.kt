@@ -36,9 +36,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -86,7 +88,7 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
             Spacer(modifier = Modifier.size(10.dp))
             MinMaxInList(uiState)
             Spacer(modifier = Modifier.size(20.dp))
-            DropDown(viewModel)
+            DropDown(viewModel, uiState.dailyChart)
         }
         Spacer(modifier = Modifier.size(20.dp))
         DescriptionChart()
@@ -116,7 +118,7 @@ private fun LoadingScreen(uiState: MoneyUiState) {
                     )
             )
             Spacer(modifier = Modifier.size(20.dp))
-            DropDown(null)
+            DropDown(null, uiState.dailyChart)
         }
         Spacer(modifier = Modifier.size(20.dp))
         DescriptionChart()
@@ -196,6 +198,20 @@ private fun SingleSelectChipList(
 @Composable
 fun MinMaxInList(chart: MoneyUiState) {
     Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            contentAlignment = Alignment.Center, modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(5.dp)
+        ) {
+            Box(
+                contentAlignment = Alignment.Center, modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.secondary)
+                    .padding(2.dp)
+            ) {}
+        }
+        Spacer(modifier = Modifier.size(12.dp))
         Text("Max:", color = MaterialTheme.colorScheme.secondary)
         Spacer(modifier = Modifier.size(5.dp))
         Text(
@@ -215,25 +231,24 @@ fun MinMaxInList(chart: MoneyUiState) {
 }
 
 @Composable
-fun DropDown(viewModel: MoneyViewModel?) {
+fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
+
+    val list = listOf(
+        R.string.money_graphic_5_days to 5,
+        R.string.money_graphic_15_days to 15,
+        R.string.money_graphic_1_months to 30,
+        R.string.money_graphic_2_months to 60,
+        R.string.money_graphic_3_months to 90,
+        R.string.money_graphic_6_months to 180,
+        R.string.money_graphic_1_year to 365
+    )
+
+    val initialIndex = list.indexOfFirst { it.second == dailyChart.toInt() }.coerceAtLeast(0)
+    val itemPosition = remember { mutableIntStateOf(initialIndex) }
 
     val isDropDownExpanded = remember {
         mutableStateOf(false)
     }
-
-    val itemPosition = remember {
-        mutableIntStateOf(0)
-    }
-
-    val list = listOf(
-        "5 Dias" to "5",
-        "15 Dias" to "15",
-        "1 Mês" to "30",
-        "2 Mesês" to "60",
-        "3 Mesês" to "90",
-        "6 Mesês" to "180",
-        "1 Ano" to "365"
-    )
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
         viewModel ?: return@clickable
@@ -244,9 +259,9 @@ fun DropDown(viewModel: MoneyViewModel?) {
                 .width(75.dp)
                 .height(35.dp)
                 .border(
-                    width = 1.dp, // Largura da borda
-                    color = MaterialTheme.colorScheme.secondary, // Cor da borda
-                    shape = RoundedCornerShape(20.dp) // Forma arredondada
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.secondary,
+                    shape = RoundedCornerShape(20.dp)
                 )
         ) {
             Row(
@@ -256,7 +271,7 @@ fun DropDown(viewModel: MoneyViewModel?) {
                     .fillMaxSize()
             ) {
                 Text(
-                    text = list[itemPosition.intValue].first,
+                    text = stringResource(list[itemPosition.intValue].first),
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
@@ -267,14 +282,13 @@ fun DropDown(viewModel: MoneyViewModel?) {
                 }) {
                 list.forEachIndexed { index, period ->
                     DropdownMenuItem(text = {
-                        Text(text = period.first)
+                        Text(text = stringResource(period.first))
                     },
                         onClick = {
-                            TODO()
                             viewModel ?: return@DropdownMenuItem
                             isDropDownExpanded.value = false
                             itemPosition.intValue = index
-                            viewModel.setPeriodChart(period.second)
+                            viewModel.setPeriodChart(period.second.toString())
                         })
                 }
             }
@@ -285,7 +299,7 @@ fun DropDown(viewModel: MoneyViewModel?) {
 @Composable
 private fun DescriptionChart() {
     Text(
-        "*Deslize pelo grafico para ver mais",
+        stringResource(R.string.money_graphic_description_chart),
         color = MaterialTheme.colorScheme.secondary
     )
 }
@@ -323,7 +337,8 @@ fun Chart(listItems: List<Entry>?) {
             color = secondaryColor
             setCircleColor(primaryColor)
             circleRadius = 7f
-            setDrawValues(true)
+            setDrawValues(false)
+            setDrawHighlightIndicators(false)
             valueTextSize = 14f
             valueTextColor = secondaryColor
         }
@@ -331,59 +346,54 @@ fun Chart(listItems: List<Entry>?) {
         lineData = LineData(dataSet, minMaxDataSet)
     }
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(bottom = 15.dp)
-    ) {
-        AndroidView(
-            modifier = Modifier
-                .fillMaxSize()
-                .height(200.dp),
-            factory = { context ->
-                LineChart(context).apply {
-                    description.isEnabled = false // Remove the description
-                    setTouchEnabled(true)
-                    setPinchZoom(false)
-                    setScaleEnabled(false)
+    AndroidView(
+        modifier = Modifier
+            .fillMaxSize()
+            .height(200.dp),
+        factory = { context ->
+            LineChart(context).apply {
+                description.isEnabled = false // Remove the description
+                setTouchEnabled(true)
+                setPinchZoom(false)
+                setScaleEnabled(false)
 
-                    xAxis.apply {
-                        setDrawGridLines(false) // Disable grid lines
-                        setDrawAxisLine(true) // Disable axis line
-                        setDrawLabels(true) // Disable the X axis labels
-                        textColor = secondaryColor
-                        position = XAxis.XAxisPosition.BOTTOM
-                        textSize = 14f // Set the font size for X axis labels
-                        spaceMin = 0.5f
-                        valueFormatter = DateValueFormatter()
-                        axisMinimum = 0f
-                        labelRotationAngle = 0f
-                        isGranularityEnabled = true
-                    }
-
-                    axisLeft.apply {
-                        setDrawGridLines(false) // Disable grid lines
-                        setDrawAxisLine(false) // Disable axis line
-                        textSize = 14f // Set the font size for Y axis labels
-                        textColor = secondaryColor
-                    }
-
-                    customMarkerView.setMarkerView(listItems)
-                    marker = customMarkerView
-
-                    axisRight.isEnabled = false // Disable the right Y axis
-                    legend.isEnabled = false // Disable the legend
-
-                    data = lineData
-                    invalidate()
+                xAxis.apply {
+                    setDrawGridLines(false) // Disable grid lines
+                    setDrawAxisLine(true) // Disable axis line
+                    setDrawLabels(true) // Disable the X axis labels
+                    textColor = secondaryColor
+                    position = XAxis.XAxisPosition.BOTTOM
+                    textSize = 14f // Set the font size for X axis labels
+                    spaceMin = 0.5f
+                    valueFormatter = DateValueFormatter()
+                    axisMinimum = 0f
+                    labelRotationAngle = 0f
+                    isGranularityEnabled = true
                 }
-            },
-            update = {
-                it.data = lineData
+
+                axisLeft.apply {
+                    setDrawGridLines(false) // Disable grid lines
+                    setDrawAxisLine(false) // Disable axis line
+                    textSize = 14f // Set the font size for Y axis labels
+                    textColor = secondaryColor
+                }
+
                 customMarkerView.setMarkerView(listItems)
-                it.marker = customMarkerView
-                it.invalidate()
-            })
-    }
+                marker = customMarkerView
+
+                axisRight.isEnabled = false // Disable the right Y axis
+                legend.isEnabled = false // Disable the legend
+
+                data = lineData
+                invalidate()
+            }
+        },
+        update = {
+            it.data = lineData
+            customMarkerView.setMarkerView(listItems)
+            it.marker = customMarkerView
+            it.invalidate()
+        })
 }
 
 @Preview(showBackground = true)
