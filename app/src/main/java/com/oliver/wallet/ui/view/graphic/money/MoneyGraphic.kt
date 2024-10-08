@@ -92,7 +92,8 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
         }
         Spacer(modifier = Modifier.size(20.dp))
         DescriptionChart()
-        Chart(uiState.chart)
+        Chart(uiState.chart, Modifier.weight(1f))
+        Spacer(modifier = Modifier.size(20.dp))
     }
 }
 
@@ -110,7 +111,7 @@ private fun LoadingScreen(uiState: MoneyUiState) {
             Spacer(modifier = Modifier.size(10.dp))
             ShimmerEffect(
                 modifier = Modifier
-                    .width(180.dp)
+                    .width(205.dp)
                     .height(40.dp)
                     .background(
                         MaterialTheme.colorScheme.tertiary,
@@ -125,7 +126,7 @@ private fun LoadingScreen(uiState: MoneyUiState) {
         ShimmerEffect(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(210.dp)
+                .weight(1f)
                 .padding(10.dp)
                 .background(
                     MaterialTheme.colorScheme.tertiary,
@@ -149,7 +150,7 @@ private fun SingleSelectChipList(
 ) {
     val label = stringArrayResource(R.array.list_money_label).toList()
 
-    var selected by remember {
+    val selected by remember {
         mutableStateOf<String?>(
             label[when (uiState.symbol) {
                 TypeMoney.Dollar -> 0
@@ -174,7 +175,7 @@ private fun SingleSelectChipList(
                     onClick = {
                         viewModel ?: return@Chip
 
-                        selected = if (isSelected) selected else it
+                        if (selected == it) return@Chip
 
                         viewModel.selectMoneySymbol(
                             when (index) {
@@ -305,7 +306,7 @@ private fun DescriptionChart() {
 }
 
 @Composable
-fun Chart(listItems: List<Entry>?) {
+fun Chart(listItems: List<Entry>?, modifier: Modifier) {
     var lineData by remember { mutableStateOf(LineData()) }
 
     val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
@@ -347,9 +348,8 @@ fun Chart(listItems: List<Entry>?) {
     }
 
     AndroidView(
-        modifier = Modifier
-            .fillMaxSize()
-            .height(200.dp),
+        modifier = modifier
+            .fillMaxSize(),
         factory = { context ->
             LineChart(context).apply {
                 description.isEnabled = false // Remove the description
