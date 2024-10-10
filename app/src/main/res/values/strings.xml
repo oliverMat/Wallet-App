@@ -11,6 +11,13 @@
         <item>Euro/Real</item>
     </string-array>
 
+    <string name="money_view_calculator">Calculadora</string>
+    <string name="money_view_graphic">Grafico</string>
+    <string name="money_view_coin">Moedas:</string>
+    <string name="money_view_last_update">Ultima atualização:</string>
+    <string name="money_view_last_five_days">Ultimos 5 dias</string>
+    <string name="money_view_min_max_day">Max/Min do dia:</string>
+
     <string name="money_graphic_5_days">5 Dias</string>
     <string name="money_graphic_15_days">15 Dias</string>
     <string name="money_graphic_1_months">1 Mês</string>

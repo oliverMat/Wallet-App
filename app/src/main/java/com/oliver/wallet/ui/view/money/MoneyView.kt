@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -195,7 +196,7 @@ fun Price(price: MoneyModel?) {
 @Composable
 fun MaxMin(price: MoneyModel?) {
     Text(
-        text = "Max/Min do dia:",
+        text = stringResource(R.string.money_view_min_max_day),
         textAlign = TextAlign.Start,
         color = MaterialTheme.colorScheme.background
     )
@@ -264,7 +265,7 @@ fun Chart(listItems: List<Entry>?) {
         modifier = Modifier.padding(horizontal = 40.dp)
     ) {
         Text(
-            text = "Ultimos 5 dias",
+            text = stringResource(R.string.money_view_last_five_days),
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.background,
             modifier = Modifier.padding(bottom = 10.dp)
@@ -322,7 +323,7 @@ fun Date(price: MoneyModel?) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Ultima atualização:",
+            text = stringResource(R.string.money_view_last_update),
             textAlign = TextAlign.Start,
             color = MaterialTheme.colorScheme.secondary
         )
@@ -384,13 +385,13 @@ private fun WhiteBox(
             Spacer(modifier = Modifier.size(20.dp))
             Row(Modifier.width(550.dp)) {
                 ButtonBox(
-                    text = "Calculadora",
+                    text = stringResource(R.string.nav_name_calculator),
                     icon = R.drawable.calculate,
                     Modifier.weight(1f),
                     onClick = { navController?.navigate(WalletScreen.Calculator.name) ?: return@ButtonBox }
                 )
                 ButtonBox(
-                    text = "Grafico",
+                    text = stringResource(R.string.money_view_graphic),
                     icon = R.drawable.bar_chart,
                     Modifier.weight(1f),
                     onClick = { navController?.navigate(WalletScreen.MoneyGraphic.name) ?: return@ButtonBox }
@@ -415,7 +416,7 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel?, uiState: MoneyUiSta
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Moedas:")
+        Text(text = stringResource(R.string.money_view_coin))
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState())
         ) {
