@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -71,60 +72,12 @@ fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
 
     LifeCycle(viewModel)
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.tertiary)
-            .verticalScroll(rememberScrollState())
-    ) {
-        when (uiState.connectionState) {
-            ConnectionStatus.Success -> {
-                Spacer(modifier = Modifier.size(10.dp))
-                Price(uiState.price)
-                Spacer(modifier = Modifier.size(40.dp))
-                MaxMin(uiState.price)
-                Spacer(modifier = Modifier.size(40.dp))
-                Chart(uiState.chart)
-                Spacer(modifier = Modifier.size(10.dp))
-                Date(uiState.price)
-                Spacer(modifier = Modifier.size(10.dp))
-            }
+    when (uiState.connectionState) {
+        ConnectionStatus.Success -> SuccessScreen(uiState, viewModel, navController)
 
-            ConnectionStatus.Loading -> {
-                EffectShimmerEffect()
-            }
+        ConnectionStatus.Loading -> LoadingScreen(uiState)
 
-            ConnectionStatus.Error -> {
-
-            }
-        }
-        Box(
-            contentAlignment = Alignment.Center, modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.size(15.dp))
-                SingleSelectChipList(viewModel, uiState)
-                Spacer(modifier = Modifier.size(20.dp))
-                Row {
-                    ButtonBox(
-                        text = "Calculadora",
-                        icon = R.drawable.calculate,
-                        Modifier.weight(1f),
-                        onClick = { navController.navigate(WalletScreen.Calculator.name) }
-                    )
-                    ButtonBox(
-                        text = "Grafico",
-                        icon = R.drawable.bar_chart,
-                        Modifier.weight(1f),
-                        onClick = { navController.navigate(WalletScreen.MoneyGraphic.name) }
-                    )
-                }
-            }
-        }
+        ConnectionStatus.Error -> ErrorScreen()
     }
 }
 
@@ -141,52 +94,59 @@ private fun LifeCycle(viewModel: MoneyViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiState) {
-    val label = stringArrayResource(R.array.list_money_label).toList()
+private fun SuccessScreen(
+    uiState: MoneyUiState,
+    viewModel: MoneyViewModel,
+    navController: NavHostController
+) {
 
-    var selected by remember {
-        mutableStateOf<String?>(
-            label[when (uiState.symbol) {
-                TypeMoney.Dollar -> 0
-                TypeMoney.Euro -> 1
-            }]
-        )
+    PrincipalColumn {
+        Spacer(modifier = Modifier.size(10.dp))
+        Price(uiState.price)
+        Spacer(modifier = Modifier.size(40.dp))
+        MaxMin(uiState.price)
+        Spacer(modifier = Modifier.size(40.dp))
+        Chart(uiState.chart)
+        Spacer(modifier = Modifier.size(10.dp))
+        Date(uiState.price)
+        Spacer(modifier = Modifier.size(10.dp))
+        WhiteBox(uiState, viewModel, navController, it)
     }
+}
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Moedas:")
-        Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState())
-        ) {
-            label.forEachIndexed { index, it ->
-                val isSelected = it == selected
-                Chip(
-                    border = BorderStroke(
-                        width = 1.0.dp, MaterialTheme.colorScheme.tertiary
-                    ),
-                    colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
-                    onClick = {
-                        selected = if (isSelected) selected else it
+@Composable
+private fun LoadingScreen(uiState: MoneyUiState) {
+    PrincipalColumn {
+        ShimmerEffect(
+            modifier = Modifier
+                .height(386.dp)
+                .fillMaxWidth()
+                .padding(10.dp)
+                .background(
+                    MaterialTheme.colorScheme.tertiary,
+                    RoundedCornerShape(10.dp)
+                )
+        )
+        WhiteBox(uiState, null, null, it)
+    }
+}
 
-                        viewModel.selectMoneySymbol(
-                            when (index) {
-                                0 -> TypeMoney.Dollar
-                                else -> TypeMoney.Euro
-                            }
-                        )
-                    },
-                ) {
-                    Text(
-                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 19.dp),
-                        text = it,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
-            }
-        }
+@Composable
+private fun ErrorScreen() {
+
+}
+
+@Composable
+private fun PrincipalColumn(item: @Composable (modifier: Modifier) -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.tertiary)
+            .verticalScroll(rememberScrollState())
+    ) {
+        item(Modifier.weight(1f))
     }
 }
 
@@ -380,7 +340,6 @@ fun Date(price: MoneyModel?) {
 fun ButtonBox(text: String, icon: Int, modifier: Modifier, onClick: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center, modifier = modifier
-            .fillMaxWidth()
             .padding(horizontal = 10.dp)
             .border(
                 width = 1.dp,
@@ -404,17 +363,92 @@ fun ButtonBox(text: String, icon: Int, modifier: Modifier, onClick: () -> Unit) 
 }
 
 @Composable
-fun EffectShimmerEffect() {
-    ShimmerEffect(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(387.5.dp)
-            .padding(10.dp)
-            .background(
-                MaterialTheme.colorScheme.tertiary,
-                RoundedCornerShape(10.dp)
-            )
-    )
+private fun WhiteBox(
+    uiState: MoneyUiState,
+    viewModel: MoneyViewModel?,
+    navController: NavHostController?,
+    modifier: Modifier
+) {
+    Box(
+        contentAlignment = Alignment.Center, modifier = modifier
+            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.size(15.dp))
+            SingleSelectChipList(viewModel, uiState)
+            Spacer(modifier = Modifier.size(20.dp))
+            Row(Modifier.width(550.dp)) {
+                ButtonBox(
+                    text = "Calculadora",
+                    icon = R.drawable.calculate,
+                    Modifier.weight(1f),
+                    onClick = { navController?.navigate(WalletScreen.Calculator.name) ?: return@ButtonBox }
+                )
+                ButtonBox(
+                    text = "Grafico",
+                    icon = R.drawable.bar_chart,
+                    Modifier.weight(1f),
+                    onClick = { navController?.navigate(WalletScreen.MoneyGraphic.name) ?: return@ButtonBox }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun SingleSelectChipList(viewModel: MoneyViewModel?, uiState: MoneyUiState) {
+    val label = stringArrayResource(R.array.list_money_label).toList()
+
+    val selected by remember {
+        mutableStateOf<String?>(
+            label[when (uiState.symbol) {
+                TypeMoney.Dollar -> 0
+                TypeMoney.Euro -> 1
+            }]
+        )
+    }
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = "Moedas:")
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState())
+        ) {
+            label.forEachIndexed { index, it ->
+                val isSelected = it == selected
+                Chip(
+                    border = BorderStroke(
+                        width = 1.0.dp, MaterialTheme.colorScheme.tertiary
+                    ),
+                    colors = ChipDefaults.chipColors(backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary),
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+                    onClick = {
+                        viewModel ?: return@Chip
+
+                        if (selected == it) return@Chip
+
+                        viewModel.selectMoneySymbol(
+                            when (index) {
+                                0 -> TypeMoney.Dollar
+                                else -> TypeMoney.Euro
+                            }
+                        )
+                    },
+                ) {
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 19.dp),
+                        text = it,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
