@@ -3,10 +3,10 @@ package com.oliver.wallet.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
-import com.oliver.wallet.data.model.MoneyResponse
+import com.oliver.wallet.data.network.MoneyResponse
 import com.oliver.wallet.data.model.MoneyUiState
+import com.oliver.wallet.data.network.MoneyRepository
 import com.oliver.wallet.data.network.ResultWrapper
-import com.oliver.wallet.data.network.money.MoneyRepository
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.Constants.UPDATE_INTERVAL_1
@@ -20,8 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class MoneyViewModel : ViewModel() {
-    private val moneyRepository = MoneyRepository()
+class MoneyViewModel(private val moneyRepository: MoneyRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MoneyUiState())
     val uiState: StateFlow<MoneyUiState> = _uiState.asStateFlow()

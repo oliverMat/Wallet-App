@@ -30,19 +30,28 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.oliver.wallet.R
+import com.oliver.wallet.ui.AppViewModelProvider
 import com.oliver.wallet.ui.view.calculator.CalculatorView
 import com.oliver.wallet.ui.view.common.LockScreenOrientation
 import com.oliver.wallet.ui.view.graphic.money.MoneyGraphicView
 import com.oliver.wallet.ui.view.money.MoneyView
 import com.oliver.wallet.ui.view.stock.StockView
+import com.oliver.wallet.ui.viewmodel.CoinViewModel
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.WalletScreen
 
 sealed class Screen(val route: String, val label: Int, val icon: Int?) {
-    data object Money : Screen(WalletScreen.Money.name, R.string.nav_name_money, R.drawable.money_icon)
-    data object Stock : Screen(WalletScreen.Stock.name, R.string.nav_name_stock, R.drawable.show_chart_icon)
-    data object Calculator : Screen(WalletScreen.Calculator.name, R.string.nav_name_calculator, null)
-    data object MoneyGraphic : Screen(WalletScreen.MoneyGraphic.name, R.string.nav_name_money_graphic, null)
+    data object Money :
+        Screen(WalletScreen.Money.name, R.string.nav_name_money, R.drawable.money_icon)
+
+    data object Stock :
+        Screen(WalletScreen.Stock.name, R.string.nav_name_stock, R.drawable.show_chart_icon)
+
+    data object Calculator :
+        Screen(WalletScreen.Calculator.name, R.string.nav_name_calculator, null)
+
+    data object MoneyGraphic :
+        Screen(WalletScreen.MoneyGraphic.name, R.string.nav_name_money_graphic, null)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +63,13 @@ fun WalletAppBar(
     showNavigationIcon: Boolean
 ) {
     TopAppBar(
-        title = { Text(currentScreen, fontSize = 18.sp, color = MaterialTheme.colorScheme.secondary) },
+        title = {
+            Text(
+                currentScreen,
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.secondary
+            )
+        },
         colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = MaterialTheme.colorScheme.tertiary),
         modifier = modifier,
         navigationIcon = {
@@ -72,7 +87,11 @@ fun WalletAppBar(
 }
 
 @Composable
-fun WalletApp(navController: NavHostController = rememberNavController(), viewModel: MoneyViewModel = viewModel()) {
+fun WalletApp(
+    navController: NavHostController = rememberNavController(),
+    moneyViewModel: MoneyViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    coinViewModel: CoinViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
     val bottomNavItems = listOf(Screen.Money, Screen.Stock)
 
     Scaffold(
@@ -94,10 +113,10 @@ fun WalletApp(navController: NavHostController = rememberNavController(), viewMo
             startDestination = Screen.Money.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Money.route) { MoneyScreen(navController, viewModel) }
+            composable(Screen.Money.route) { MoneyScreen(navController, moneyViewModel, coinViewModel) }
             composable(Screen.Stock.route) { StockScreen(navController) }
-            composable(Screen.Calculator.route) { CalculatorScreen(viewModel) }
-            composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(viewModel) }
+            composable(Screen.Calculator.route) { CalculatorScreen(moneyViewModel) }
+            composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(moneyViewModel) }
         }
     }
 }
@@ -147,14 +166,21 @@ private fun currentRoute(navController: NavController): String? {
 }
 
 @Composable
-private fun showNavigationIcon(navController: NavHostController, bottomNavItems: List<Screen>): Boolean {
+private fun showNavigationIcon(
+    navController: NavHostController,
+    bottomNavItems: List<Screen>
+): Boolean {
     return (currentRoute(navController) !in bottomNavItems.map { it.route })
 }
 
 @Composable
-private fun MoneyScreen(navController: NavHostController, viewModel: MoneyViewModel) {
+private fun MoneyScreen(
+    navController: NavHostController,
+    viewModel: MoneyViewModel,
+    coinViewModel: CoinViewModel
+) {
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-    MoneyView(navController, viewModel)
+    MoneyView(navController, viewModel, coinViewModel)
 }
 
 @Composable

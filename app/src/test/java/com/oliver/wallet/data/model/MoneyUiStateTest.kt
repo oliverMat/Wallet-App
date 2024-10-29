@@ -1,5 +1,6 @@
 package com.oliver.wallet.data.model
 
+import com.oliver.wallet.data.network.MoneyModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.TypeMoney

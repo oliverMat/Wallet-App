@@ -1,6 +1,8 @@
 package com.oliver.wallet.data.model
 
 import com.google.gson.Gson
+import com.oliver.wallet.data.network.MoneyModel
+import com.oliver.wallet.data.network.MoneyResponse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test

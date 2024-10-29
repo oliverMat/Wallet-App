@@ -1,8 +1,5 @@
 package com.oliver.wallet.data.network
 
-import com.oliver.wallet.data.model.MoneyModel
-import com.oliver.wallet.data.model.MoneyResponse
-import com.oliver.wallet.data.network.money.MoneyRepository
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -17,13 +14,13 @@ import retrofit2.Response
 import java.io.IOException
 
 
-class MoneyRepositoryTest {
+class OnlineMoneyRepositoryTest {
 
-    private lateinit var repository: MoneyRepository
+    private lateinit var repository: MoneyRepo
 
     @Before
     fun setup() {
-        repository = mock(MoneyRepository::class.java)
+        repository = mock(MoneyRepo::class.java)
     }
 
 

@@ -1,4 +1,4 @@
-package com.oliver.wallet.data.model
+package com.oliver.wallet.data.network
 
 import com.google.gson.annotations.SerializedName
 

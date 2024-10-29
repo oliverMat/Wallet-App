@@ -400,6 +400,6 @@ fun Chart(listItems: List<Entry>?, modifier: Modifier) {
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        MoneyGraphicView(MoneyViewModel())
+        LoadingScreen(MoneyUiState())
     }
 }

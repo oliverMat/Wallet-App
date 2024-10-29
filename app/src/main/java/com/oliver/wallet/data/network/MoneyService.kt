@@ -1,8 +1,6 @@
-package com.oliver.wallet.data.network.money
+package com.oliver.wallet.data.network
 
 
-import com.oliver.wallet.data.model.MoneyModel
-import com.oliver.wallet.data.model.MoneyResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 

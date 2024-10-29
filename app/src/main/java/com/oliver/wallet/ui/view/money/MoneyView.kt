@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,12 +56,12 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.oliver.wallet.R
-import com.oliver.wallet.data.model.MoneyModel
+import com.oliver.wallet.data.network.MoneyModel
 import com.oliver.wallet.data.model.MoneyUiState
-import com.oliver.wallet.data.model.dummydata
 import com.oliver.wallet.ui.theme.WalletTheme
 import com.oliver.wallet.ui.view.common.ComposableLifecycle
 import com.oliver.wallet.ui.view.common.ShimmerEffect
+import com.oliver.wallet.ui.viewmodel.CoinViewModel
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.DateValueFormatter
@@ -71,7 +69,11 @@ import com.oliver.wallet.util.WalletScreen
 import com.oliver.wallet.util.toDecimalFormat
 
 @Composable
-fun MoneyView(navController: NavHostController, viewModel: MoneyViewModel) {
+fun MoneyView(
+    navController: NavHostController,
+    viewModel: MoneyViewModel,
+    coinViewModel: CoinViewModel
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     LifeCycle(viewModel)
@@ -390,11 +392,11 @@ private fun PartialBottomSheet() {
                 sheetState = sheetState,
                 onDismissRequest = { showBottomSheet = false }
             ) {
-                LazyColumn {
-                    items(items = dummydata()) {
-                        CardList(it.label, it.favorite)
-                    }
-                }
+//                LazyColumn {
+//                    items(items = dummydata()) {
+//                        CardList(it.label, it.favorite)
+//                    }
+//                }
             }
         }
     }
@@ -412,9 +414,11 @@ fun CardList(userDetail: String, favorite: Boolean) {
         ),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(5.dp)) {
-            Text(text = userDetail, modifier = Modifier
-                .padding(10.dp)
-                .weight(1f))
+            Text(
+                text = userDetail, modifier = Modifier
+                    .padding(10.dp)
+                    .weight(1f)
+            )
             Image(
                 painter = painterResource(id = R.drawable.baseline_favorite_24),
                 contentDescription = "image",
@@ -442,6 +446,6 @@ private fun negativeValueColor(value: String?): Color {
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        MoneyView(rememberNavController(), MoneyViewModel())
+        SuccessScreen(MoneyUiState(), rememberNavController())
     }
 }
