@@ -5,6 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.oliver.wallet.R
+import com.oliver.wallet.util.TypeMoney
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,18 +32,12 @@ abstract class CoinDatabase : RoomDatabase() {
         private class DatabaseCallback : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                // Insira valores no banco de dados ao criá-lo
+                // valores no banco de dados ao criá-lo
                 Instance?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
                         val dao = database.coinDao()
-                        dao.insert(CoinModel(label = "Valor1", image = "", favorite = false))
-                        dao.insert(CoinModel(label = "Valor1", image = "", favorite = false))
-                        dao.insert(CoinModel(label = "Valor1", image = "", favorite = false))
-                        dao.insert(CoinModel(label = "Valor1", image = "", favorite = false))
-                        dao.insert(CoinModel(label = "Valor1", image = "", favorite = false))
-                        dao.insert(CoinModel(label = "Valor1", image = "", favorite = false))
-                        dao.insert(CoinModel(label = "Valor1", image = "", favorite = false))
-                        dao.insert(CoinModel(label = "Valor1", image = "", favorite = false))
+                        dao.insert(CoinModel(label = R.string.dollar_name, image = "", typeMoney = TypeMoney.Dollar, isFavorite = true))
+                        dao.insert(CoinModel(label = R.string.euro_name, image = "", typeMoney = TypeMoney.Euro, isFavorite = false))
                     }
                 }
             }

@@ -2,7 +2,7 @@ package com.oliver.wallet.data.network
 
 interface MoneyRepository {
 
-    suspend fun getCurrentCoinData(symbol: String): ResultWrapper<MoneyResponse>
+    suspend fun getPriceOfDay(symbol: String): ResultWrapper<MoneyResponse>
 
-    suspend fun getCoinDaily(symbol: String, daily: String): ResultWrapper<List<MoneyModel>>
+    suspend fun getChartForPeriod(symbol: String, daily: String): ResultWrapper<List<MoneyModel>>
 }

@@ -254,7 +254,7 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiStat
 
     var selected by remember {
         mutableStateOf<String?>(
-            label[when (uiState.symbol) {
+            label[when (uiState.typeMoney) {
                 TypeMoney.Dollar -> 0
                 TypeMoney.Euro -> 1
             }]
@@ -278,12 +278,12 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiStat
                 onClick = {
                     selected = if (isSelected) selected else it
 
-                    viewModel.selectMoneySymbol(
-                        when (index) {
-                            0 -> TypeMoney.Dollar
-                            else -> TypeMoney.Euro
-                        }
-                    )
+//                    viewModel.selectMoneySymbol(
+//                        when (index) {
+//                            0 -> TypeMoney.Dollar
+//                            else -> TypeMoney.Euro
+//                        }
+//                    )
                 },
             ) {
                 Text(
@@ -302,6 +302,6 @@ private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiStat
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        CalculatorView(MoneyViewModel(viewModel()))
+        CalculatorView(MoneyViewModel(viewModel(), viewModel()))
     }
 }

@@ -5,18 +5,16 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.oliver.wallet.Application
-import com.oliver.wallet.ui.viewmodel.CoinViewModel
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
 
         initializer {
-            MoneyViewModel(application().container.moneyRepository)
-        }
-
-        initializer {
-            CoinViewModel(application().container.coinRepository)
+            MoneyViewModel(
+                application().container.moneyRepository,
+                application().container.coinRepository
+            )
         }
     }
 }

@@ -152,7 +152,7 @@ private fun SingleSelectChipList(
 
     val selected by remember {
         mutableStateOf<String?>(
-            label[when (uiState.symbol) {
+            label[when (uiState.typeMoney) {
                 TypeMoney.Dollar -> 0
                 TypeMoney.Euro -> 1
             }]
@@ -177,12 +177,12 @@ private fun SingleSelectChipList(
 
                         if (selected == it) return@Chip
 
-                        viewModel.selectMoneySymbol(
-                            when (index) {
-                                0 -> TypeMoney.Dollar
-                                else -> TypeMoney.Euro
-                            }
-                        )
+//                        viewModel.selectMoneySymbol(
+//                            when (index) {
+//                                0 -> TypeMoney.Dollar
+//                                else -> TypeMoney.Euro
+//                            }
+//                        )
                     },
                 ) {
                     Text(

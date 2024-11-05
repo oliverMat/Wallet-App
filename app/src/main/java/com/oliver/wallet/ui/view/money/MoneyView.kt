@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,13 +15,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,12 +44,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.github.mikephil.charting.charts.LineChart
@@ -58,28 +62,28 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.oliver.wallet.R
 import com.oliver.wallet.data.network.MoneyModel
 import com.oliver.wallet.data.model.MoneyUiState
+import com.oliver.wallet.data.room.CoinModel
 import com.oliver.wallet.ui.theme.WalletTheme
 import com.oliver.wallet.ui.view.common.ComposableLifecycle
 import com.oliver.wallet.ui.view.common.ShimmerEffect
-import com.oliver.wallet.ui.viewmodel.CoinViewModel
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.DateValueFormatter
+import com.oliver.wallet.util.TypeMoney
 import com.oliver.wallet.util.WalletScreen
 import com.oliver.wallet.util.toDecimalFormat
 
 @Composable
 fun MoneyView(
     navController: NavHostController,
-    viewModel: MoneyViewModel,
-    coinViewModel: CoinViewModel
+    viewModel: MoneyViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LifeCycle(viewModel)
 
     when (uiState.connectionState) {
-        ConnectionStatus.Success -> SuccessScreen(uiState, navController)
+        ConnectionStatus.Success -> SuccessScreen(uiState, navController, viewModel)
 
         ConnectionStatus.Loading -> LoadingScreen()
 
@@ -103,7 +107,8 @@ private fun LifeCycle(viewModel: MoneyViewModel) {
 @Composable
 private fun SuccessScreen(
     uiState: MoneyUiState,
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: MoneyViewModel
 ) {
     PrincipalColumn {
         ElevatedCard(
@@ -117,19 +122,38 @@ private fun SuccessScreen(
                 .padding(8.dp)
                 .fillMaxWidth()
         ) {
-            TitleText("Cotação atual")
-            Price(uiState.price)
-            Spacer(modifier = Modifier.size(10.dp))
-            TitleText("Variação do dia")
-            MaxMin(uiState.price)
-            Spacer(modifier = Modifier.size(10.dp))
-            TitleText("Moeda")
-            Text(
-                "${uiState.price?.code}",
-                color = MaterialTheme.colorScheme.secondary,
-                fontSize = 15.sp,
-                modifier = Modifier.padding(start = 10.dp, bottom = 10.dp)
-            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Column {
+                    TitleText("Cotação atual")
+                    Price(uiState.price)
+                    Spacer(modifier = Modifier.size(10.dp))
+                    TitleText("Variação do dia")
+                    MaxMin(uiState.price)
+                    Spacer(modifier = Modifier.size(10.dp))
+                    TitleText("Moeda")
+                    Text(
+                        "${uiState.coin?.label} - ${uiState.price?.code}",
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontSize = 15.sp,
+                        modifier = Modifier.padding(start = 10.dp, bottom = 10.dp)
+                    )
+                }
+                Image(
+                    modifier = Modifier
+                        .padding(vertical = 10.dp, horizontal = 15.dp)
+                        .clickable {
+                            viewModel.setFavoriteCoin()
+                        },
+                    painter = if (uiState.coin?.isFavorite == true) painterResource(id = R.drawable.baseline_favorite_24) else painterResource(
+                        id = R.drawable.baseline_favorite_border_24
+                    ),
+                    contentDescription = "Custom Money Icon",
+                )
+            }
         }
         Spacer(modifier = Modifier.size(10.dp))
         Row {
@@ -146,8 +170,7 @@ private fun SuccessScreen(
         Spacer(modifier = Modifier.size(15.dp))
         Chart(uiState.chart)
         Spacer(modifier = Modifier.size(35.dp))
-        PartialBottomSheet()
-
+        PartialBottomSheet(uiState, viewModel)
     }
 }
 
@@ -368,7 +391,7 @@ private fun Chart(listItems: List<Entry>?) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PartialBottomSheet() {
+private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
@@ -392,35 +415,44 @@ private fun PartialBottomSheet() {
                 sheetState = sheetState,
                 onDismissRequest = { showBottomSheet = false }
             ) {
-//                LazyColumn {
-//                    items(items = dummydata()) {
-//                        CardList(it.label, it.favorite)
-//                    }
-//                }
+                LazyColumn {
+                    items(uiState.listCoin ?: return@LazyColumn) {
+                        CardList(it, uiState.typeMoney) {
+                            viewModel.selectCoin(it)
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun CardList(userDetail: String, favorite: Boolean) {
-    Card(
+fun CardList(coinModel: CoinModel, symbol: TypeMoney, onClick: () -> Unit) {
+
+    OutlinedCard(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 5.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(CornerSize(10.dp)),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = if (coinModel.typeMoney == symbol) BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.tertiary
+        ) else BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(5.dp)) {
             Text(
-                text = userDetail, modifier = Modifier
+                text = stringResource(coinModel.label), modifier = Modifier
                     .padding(10.dp)
                     .weight(1f)
             )
             Image(
-                painter = painterResource(id = R.drawable.baseline_favorite_24),
+                painter = if (coinModel.isFavorite) painterResource(id = R.drawable.baseline_favorite_24) else painterResource(
+                    id = R.drawable.baseline_favorite_border_24
+                ),
                 contentDescription = "image",
                 modifier = Modifier
                     .padding(8.dp)
@@ -446,6 +478,6 @@ private fun negativeValueColor(value: String?): Color {
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        SuccessScreen(MoneyUiState(), rememberNavController())
+        SuccessScreen(MoneyUiState(), rememberNavController(), viewModel())
     }
 }

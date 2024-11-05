@@ -2,6 +2,7 @@ package com.oliver.wallet.data.model
 
 import com.github.mikephil.charting.data.Entry
 import com.oliver.wallet.data.network.MoneyModel
+import com.oliver.wallet.data.room.CoinModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.DateValueFormatter
@@ -10,12 +11,14 @@ import com.oliver.wallet.util.toDecimalFormat
 
 data class MoneyUiState(
     val connectionState: ConnectionStatus = ConnectionStatus.Loading,
-    val symbol: TypeMoney = TypeMoney.Dollar,
+    val typeMoney: TypeMoney = TypeMoney.Dollar,
     val price: MoneyModel? = null,
     val chart: List<Entry>? = null,
     val calculate: Float = 1f,
-    val dailyChart: String = DAILY_STANDARD
-){
+    val dailyChart: String = DAILY_STANDARD,
+    val listCoin: List<CoinModel>? = null,
+    val coin: CoinModel? = null
+) {
 
     fun getCalculateResult(): Float {
         return (calculate * if (price?.bid == null) 1f else price.bid.toFloat())

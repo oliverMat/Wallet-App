@@ -24,7 +24,7 @@ class MoneyUiStateTest {
 
         assertEquals(ConnectionStatus.Loading, uiState.connectionState)
 
-        assertEquals(TypeMoney.Dollar, uiState.symbol)
+        assertEquals(TypeMoney.Dollar, uiState.typeMoney)
 
         assertNull(uiState.price)
 

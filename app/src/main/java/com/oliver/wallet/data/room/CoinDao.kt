@@ -18,4 +18,7 @@ interface CoinDao {
 
     @Query("SELECT * from coin ORDER BY label ASC")
     fun getAll(): Flow<List<CoinModel>>
+
+    @Query("SELECT * FROM coin WHERE isFavorite = 1 LIMIT 1;")
+    suspend fun getFavoriteCoin(): CoinModel
 }

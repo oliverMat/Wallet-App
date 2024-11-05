@@ -31,10 +31,10 @@ class OnlineMoneyRepositoryTest {
         val mockResponse = safeApiCall { mockApiResponse }
 
         // WHEN
-        `when`(repository.getCurrentCoinData("")).thenReturn(mockResponse)
+        `when`(repository.getPriceOfDay("")).thenReturn(mockResponse)
 
         // THEN
-        val result = repository.getCurrentCoinData("")
+        val result = repository.getPriceOfDay("")
         assertEquals(mockResponse, result)
     }
 
@@ -46,10 +46,10 @@ class OnlineMoneyRepositoryTest {
         val mockResponse = safeApiCall { mockList }
 
         // WHEN
-        `when`(repository.getCoinDaily("", "")).thenReturn(mockResponse)
+        `when`(repository.getChartForPeriod("", "")).thenReturn(mockResponse)
 
         // THEN
-        val result = repository.getCoinDaily("", "")
+        val result = repository.getChartForPeriod("", "")
         assertEquals(mockResponse, result)
     }
 
@@ -60,10 +60,10 @@ class OnlineMoneyRepositoryTest {
         val errorBody = "{\"message\": [\"Bad Request\"]}".toResponseBody("application/json".toMediaTypeOrNull())
         val httpException = HttpException(Response.error<Any>(404, errorBody))
 
-        `when`(repository.getCurrentCoinData("")).thenThrow(httpException)
+        `when`(repository.getPriceOfDay("")).thenThrow(httpException)
 
         val result = safeApiCall {
-            repository.getCurrentCoinData("")
+            repository.getPriceOfDay("")
         }
 
         assert(result is ResultWrapper.GenericError)
@@ -78,10 +78,10 @@ class OnlineMoneyRepositoryTest {
         val errorBody = "{\"message\": [\"Bad Request\"]}".toResponseBody("application/json".toMediaTypeOrNull())
         val httpException = HttpException(Response.error<Any>(404, errorBody))
 
-        `when`(repository.getCoinDaily("", "")).thenThrow(httpException)
+        `when`(repository.getChartForPeriod("", "")).thenThrow(httpException)
 
         val result = safeApiCall {
-            repository.getCoinDaily("", "")
+            repository.getChartForPeriod("", "")
         }
 
         assert(result is ResultWrapper.GenericError)
@@ -93,10 +93,10 @@ class OnlineMoneyRepositoryTest {
     @Test
     fun getCurrentCoinData_negativeResponse_GenericError() = runBlocking {
 
-        `when`(repository.getCurrentCoinData("")).thenThrow(IllegalStateException())
+        `when`(repository.getPriceOfDay("")).thenThrow(IllegalStateException())
 
         val result = safeApiCall {
-            repository.getCurrentCoinData("")
+            repository.getPriceOfDay("")
         }
 
         assertEquals(ResultWrapper.GenericError(), result)
@@ -105,10 +105,10 @@ class OnlineMoneyRepositoryTest {
     @Test
     fun getCoinDaily_negativeResponse_GenericError() = runBlocking {
 
-        `when`(repository.getCoinDaily("", "")).thenThrow(IllegalStateException())
+        `when`(repository.getChartForPeriod("", "")).thenThrow(IllegalStateException())
 
         val result = safeApiCall {
-            repository.getCoinDaily("", "")
+            repository.getChartForPeriod("", "")
         }
 
         assertEquals(ResultWrapper.GenericError(), result)
@@ -117,12 +117,12 @@ class OnlineMoneyRepositoryTest {
     @Test
     fun getCurrentCoinData_IOException() = runBlocking {
 
-        given(repository.getCurrentCoinData("")).willAnswer {
+        given(repository.getPriceOfDay("")).willAnswer {
             throw IOException()
         }
 
         val result = safeApiCall {
-            repository.getCurrentCoinData("")
+            repository.getPriceOfDay("")
         }
 
         assertEquals(result, ResultWrapper.NetworkError)
@@ -131,12 +131,12 @@ class OnlineMoneyRepositoryTest {
     @Test
     fun getCoinDaily_IOException() = runBlocking {
 
-        given(repository.getCoinDaily("", "")).willAnswer {
+        given(repository.getChartForPeriod("", "")).willAnswer {
             throw IOException()
         }
 
         val result = safeApiCall {
-            repository.getCoinDaily("", "")
+            repository.getChartForPeriod("", "")
         }
 
         assertEquals(result, ResultWrapper.NetworkError)

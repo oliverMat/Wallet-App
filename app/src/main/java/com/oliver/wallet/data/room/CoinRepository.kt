@@ -7,4 +7,6 @@ interface CoinRepository {
     suspend fun update(coinModel : CoinModel)
 
     fun getAllCoinStream(): Flow<List<CoinModel>>
+
+    suspend fun getFavoriteCoin(): CoinModel
 }

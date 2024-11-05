@@ -2,15 +2,15 @@ package com.oliver.wallet.data.network
 
 class MoneyRepo(private val apiMoney: MoneyService): MoneyRepository {
 
-    override suspend fun getCurrentCoinData(symbol: String): ResultWrapper<MoneyResponse> {
+    override suspend fun getPriceOfDay(symbol: String): ResultWrapper<MoneyResponse> {
         return safeApiCall {
-            apiMoney.getCurrentCoinData(symbol)
+            apiMoney.getPriceOfDay(symbol)
         }
     }
 
-    override suspend fun getCoinDaily(symbol: String, daily: String): ResultWrapper<List<MoneyModel>> {
+    override suspend fun getChartForPeriod(symbol: String, daily: String): ResultWrapper<List<MoneyModel>> {
         return safeApiCall {
-            apiMoney.getCoinDaily(symbol, daily)
+            apiMoney.getChartForPeriod(symbol, daily)
         }
     }
 }

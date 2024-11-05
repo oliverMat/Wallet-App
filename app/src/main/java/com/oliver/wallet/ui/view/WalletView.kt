@@ -36,7 +36,6 @@ import com.oliver.wallet.ui.view.common.LockScreenOrientation
 import com.oliver.wallet.ui.view.graphic.money.MoneyGraphicView
 import com.oliver.wallet.ui.view.money.MoneyView
 import com.oliver.wallet.ui.view.stock.StockView
-import com.oliver.wallet.ui.viewmodel.CoinViewModel
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.WalletScreen
 
@@ -89,8 +88,7 @@ fun WalletAppBar(
 @Composable
 fun WalletApp(
     navController: NavHostController = rememberNavController(),
-    moneyViewModel: MoneyViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    coinViewModel: CoinViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    moneyViewModel: MoneyViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val bottomNavItems = listOf(Screen.Money, Screen.Stock)
 
@@ -113,7 +111,7 @@ fun WalletApp(
             startDestination = Screen.Money.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Money.route) { MoneyScreen(navController, moneyViewModel, coinViewModel) }
+            composable(Screen.Money.route) { MoneyScreen(navController, moneyViewModel) }
             composable(Screen.Stock.route) { StockScreen(navController) }
             composable(Screen.Calculator.route) { CalculatorScreen(moneyViewModel) }
             composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(moneyViewModel) }
@@ -176,11 +174,10 @@ private fun showNavigationIcon(
 @Composable
 private fun MoneyScreen(
     navController: NavHostController,
-    viewModel: MoneyViewModel,
-    coinViewModel: CoinViewModel
+    viewModel: MoneyViewModel
 ) {
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-    MoneyView(navController, viewModel, coinViewModel)
+    MoneyView(navController, viewModel)
 }
 
 @Composable

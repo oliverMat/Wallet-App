@@ -2,12 +2,14 @@ package com.oliver.wallet.data.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.oliver.wallet.util.TypeMoney
 
 @Entity(tableName = "coin")
 data class CoinModel(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val label: String,
+    val label: Int,
+    var typeMoney: TypeMoney,
     var image: String,
-    var favorite: Boolean
+    var isFavorite: Boolean
 )
