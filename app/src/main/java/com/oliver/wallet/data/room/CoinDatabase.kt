@@ -24,20 +24,34 @@ abstract class CoinDatabase : RoomDatabase() {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, CoinDatabase::class.java, "coin_database")
-                    .addCallback(DatabaseCallback())
+                    .addCallback(DatabaseCallback(context))
                     .build().also { Instance = it }
             }
         }
 
-        private class DatabaseCallback : Callback() {
+        private class DatabaseCallback(private val context: Context) : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 // valores no banco de dados ao criá-lo
                 Instance?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
                         val dao = database.coinDao()
-                        dao.insert(CoinModel(label = R.string.dollar_name, image = "", typeMoney = TypeMoney.Dollar, isFavorite = true))
-                        dao.insert(CoinModel(label = R.string.euro_name, image = "", typeMoney = TypeMoney.Euro, isFavorite = false))
+                        dao.insert(
+                            CoinModel(
+                                label = context.getString(R.string.dollar_name),
+                                image = "",
+                                typeMoney = TypeMoney.Dollar,
+                                isFavorite = true
+                            )
+                        )
+                        dao.insert(
+                            CoinModel(
+                                label = context.getString(R.string.euro_name),
+                                image = "",
+                                typeMoney = TypeMoney.Euro,
+                                isFavorite = false
+                            )
+                        )
                     }
                 }
             }

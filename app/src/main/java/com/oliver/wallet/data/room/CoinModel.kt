@@ -8,7 +8,7 @@ import com.oliver.wallet.util.TypeMoney
 data class CoinModel(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val label: Int,
+    val label: String,
     var typeMoney: TypeMoney,
     var image: String,
     var isFavorite: Boolean

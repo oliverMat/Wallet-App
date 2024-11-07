@@ -445,7 +445,7 @@ fun CardList(coinModel: CoinModel, symbol: TypeMoney, onClick: () -> Unit) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(5.dp)) {
             Text(
-                text = stringResource(coinModel.label), modifier = Modifier
+                text = coinModel.label, modifier = Modifier
                     .padding(10.dp)
                     .weight(1f)
             )
