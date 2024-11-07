@@ -201,7 +201,7 @@ private fun PrincipalColumn(item: @Composable (modifier: Modifier) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.secondary)
             .verticalScroll(rememberScrollState())
     ) {
         item(Modifier.weight(1f))
@@ -285,12 +285,12 @@ private fun ButtonLabel(label: String, image: Painter, onClick: () -> Unit) {
     ) {
         OutlinedCard(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondary,
+                containerColor = MaterialTheme.colorScheme.background,
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 0.dp
             ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
         ) {
             Image(
                 painter = image,
