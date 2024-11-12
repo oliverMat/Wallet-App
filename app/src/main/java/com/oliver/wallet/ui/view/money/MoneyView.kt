@@ -36,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,6 +72,7 @@ import com.oliver.wallet.util.DateValueFormatter
 import com.oliver.wallet.util.TypeMoney
 import com.oliver.wallet.util.WalletScreen
 import com.oliver.wallet.util.toDecimalFormat
+import kotlinx.coroutines.launch
 
 @Composable
 fun MoneyView(
@@ -393,9 +394,8 @@ private fun Chart(listItems: List<Entry>?) {
 @Composable
 private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel) {
     var showBottomSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false,
-    )
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -416,9 +416,15 @@ private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel)
                 onDismissRequest = { showBottomSheet = false }
             ) {
                 LazyColumn {
-                    items(uiState.listCoin ?: return@LazyColumn) {
-                        CardList(it, uiState.typeMoney) {
-                            viewModel.selectCoin(it)
+                    items(uiState.listCoin ?: return@LazyColumn) { coin ->
+                        CardList(coin, uiState.typeMoney) {
+
+                            if (coin.typeMoney != uiState.typeMoney)
+                                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                                    viewModel.selectCoin(coin)
+                                    showBottomSheet = false
+                                }
+
                         }
                     }
                 }

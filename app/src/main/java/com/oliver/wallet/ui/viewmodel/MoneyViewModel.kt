@@ -44,8 +44,6 @@ class MoneyViewModel(
     }
 
     fun selectCoin(coinModel: CoinModel) {
-        if (coinModel.typeMoney == _uiState.value.typeMoney) return
-
         _uiState.update { moneyUiState ->
             moneyUiState.copy(
                 typeMoney = coinModel.typeMoney,
