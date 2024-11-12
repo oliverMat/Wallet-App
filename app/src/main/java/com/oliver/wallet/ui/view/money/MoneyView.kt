@@ -410,7 +410,7 @@ private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel)
 
         if (showBottomSheet) {
             ModalBottomSheet(
-                containerColor = MaterialTheme.colorScheme.background,
+                containerColor = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = sheetState,
                 onDismissRequest = { showBottomSheet = false }
@@ -436,14 +436,24 @@ fun CardList(coinModel: CoinModel, symbol: TypeMoney, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(CornerSize(10.dp)),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = if (coinModel.typeMoney == symbol) BorderStroke(
             1.dp,
-            MaterialTheme.colorScheme.tertiary
+            MaterialTheme.colorScheme.primary
         ) else BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(5.dp)) {
+            Image(
+                painter = painterResource(coinModel.image),
+                contentDescription = "image",
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .size(25.dp)
+                    .clip(RoundedCornerShape(CornerSize(6.dp)))
+                    .align(alignment = Alignment.CenterVertically)
+
+            )
             Text(
                 text = coinModel.label, modifier = Modifier
                     .padding(10.dp)

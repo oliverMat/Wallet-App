@@ -39,7 +39,7 @@ abstract class CoinDatabase : RoomDatabase() {
                         dao.insert(
                             CoinModel(
                                 label = context.getString(R.string.dollar_name),
-                                image = "",
+                                image = R.drawable.united_stats_flag,
                                 typeMoney = TypeMoney.Dollar,
                                 isFavorite = true
                             )
@@ -47,7 +47,7 @@ abstract class CoinDatabase : RoomDatabase() {
                         dao.insert(
                             CoinModel(
                                 label = context.getString(R.string.euro_name),
-                                image = "",
+                                image = R.drawable.europe_flag,
                                 typeMoney = TypeMoney.Euro,
                                 isFavorite = false
                             )

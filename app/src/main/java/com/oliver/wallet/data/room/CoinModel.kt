@@ -10,6 +10,6 @@ data class CoinModel(
     val id: Int = 0,
     val label: String,
     var typeMoney: TypeMoney,
-    var image: String,
+    var image: Int,
     var isFavorite: Boolean
 )
