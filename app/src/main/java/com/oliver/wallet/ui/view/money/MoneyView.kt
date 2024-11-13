@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -139,7 +140,7 @@ private fun SuccessScreen(
                         "${uiState.coin?.label} - ${uiState.price?.code}",
                         color = MaterialTheme.colorScheme.secondary,
                         fontSize = 15.sp,
-                        modifier = Modifier.padding(start = 10.dp, bottom = 10.dp)
+                        modifier = Modifier.padding(start = 18.dp, bottom = 10.dp)
                     )
                 }
                 Image(
@@ -271,7 +272,10 @@ private fun TitleText(title: String) {
 
 @Composable
 private fun Price(price: MoneyModel?) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 5.dp)) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(start = 10.dp)
+    ) {
         Image(
             painter = painterResource(id = R.drawable.money_icon_white),
             contentDescription = "Custom Money Icon",
@@ -302,7 +306,7 @@ private fun Price(price: MoneyModel?) {
 @Composable
 private fun MaxMin(price: MoneyModel?) {
     Row(
-        modifier = Modifier.padding(start = 5.dp)
+        modifier = Modifier.padding(start = 11.dp)
     ) {
         Image(
             painter = painterResource(id = R.drawable.arrow_up),
@@ -335,9 +339,7 @@ private fun ButtonLabel(label: String, image: Painter, onClick: () -> Unit) {
         modifier = Modifier.clickable(onClick = onClick)
     ) {
         OutlinedCard(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.background,
-            ),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 0.dp
             ),
@@ -486,7 +488,12 @@ private fun ButtonDialog(enabled: Boolean, onClick: () -> Unit) {
     Button(
         enabled = enabled,
         modifier = Modifier.width(250.dp),
-        onClick = onClick
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onPrimary),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.background
+        )
     ) {
         Text(stringResource(R.string.money_home_other_currencies))
     }
@@ -501,11 +508,13 @@ fun CardList(coinModel: CoinModel, symbol: TypeMoney, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(CornerSize(10.dp)),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        colors = if (coinModel.typeMoney == symbol) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary) else CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = if (coinModel.typeMoney == symbol) BorderStroke(
             1.dp,
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.background
         ) else BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(5.dp)) {
