@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -127,13 +128,13 @@ private fun SuccessScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Column {
-                    TitleText("Cotação atual")
+                    TitleText(stringResource(R.string.money_home_current_quote))
                     Price(uiState.price)
                     Spacer(modifier = Modifier.size(10.dp))
-                    TitleText("Variação do dia")
+                    TitleText(stringResource(R.string.money_home_variation_of_day))
                     MaxMin(uiState.price)
                     Spacer(modifier = Modifier.size(10.dp))
-                    TitleText("Moeda")
+                    TitleText(stringResource(R.string.money_home_coin))
                     Text(
                         "${uiState.coin?.label} - ${uiState.price?.code}",
                         color = MaterialTheme.colorScheme.secondary,
@@ -157,12 +158,12 @@ private fun SuccessScreen(
         Spacer(modifier = Modifier.size(10.dp))
         Row {
             ButtonLabel(
-                "Conversor",
+                stringResource(R.string.money_home_converter),
                 painterResource(id = R.drawable.calculate),
                 onClick = { navController.navigate(WalletScreen.Calculator.name) })
             Spacer(modifier = Modifier.size(30.dp))
             ButtonLabel(
-                "Historico",
+                stringResource(R.string.money_home_history),
                 painterResource(id = R.drawable.bar_chart),
                 onClick = { navController.navigate(WalletScreen.MoneyGraphic.name) })
         }
@@ -189,12 +190,12 @@ private fun LoadingScreen() {
         Spacer(modifier = Modifier.size(10.dp))
         Row {
             ButtonLabel(
-                "Conversor",
+                stringResource(R.string.money_home_converter),
                 painterResource(id = R.drawable.calculate),
                 onClick = { })
             Spacer(modifier = Modifier.size(30.dp))
             ButtonLabel(
-                "Historico",
+                stringResource(R.string.money_home_history),
                 painterResource(id = R.drawable.bar_chart),
                 onClick = { })
         }
@@ -230,9 +231,9 @@ private fun ErrorScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
             Modifier.size(66.dp)
         )
         Spacer(Modifier.size(15.dp))
-        Text("Parece que ouve um error!", fontSize = 17.sp)
+        Text(stringResource(R.string.money_home_error_info), fontSize = 17.sp)
         Spacer(Modifier.size(7.dp))
-        Text("Verifique sua internet.", fontSize = 13.sp)
+        Text(stringResource(R.string.money_home_error_networking_info), fontSize = 13.sp)
         Spacer(Modifier.size(15.dp))
         Button(
             modifier = Modifier.width(250.dp),
@@ -240,7 +241,7 @@ private fun ErrorScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
                 viewModel.selectCoin(uiState.coin!!)
             }
         ) {
-            Text("Recarregar")
+            Text(stringResource(R.string.money_home_reload))
         }
     }
 }
@@ -393,7 +394,7 @@ private fun Chart(listItems: List<Entry>?) {
             .padding(8.dp)
             .fillMaxWidth()
     ) {
-        TitleText("Ultimos 30 dias")
+        TitleText(stringResource(R.string.money_home_last_days))
         AndroidView(
             modifier = Modifier
                 .fillMaxSize()
@@ -487,7 +488,7 @@ private fun ButtonDialog(enabled: Boolean, onClick: () -> Unit) {
         modifier = Modifier.width(250.dp),
         onClick = onClick
     ) {
-        Text("Outras moedas")
+        Text(stringResource(R.string.money_home_other_currencies))
     }
 }
 

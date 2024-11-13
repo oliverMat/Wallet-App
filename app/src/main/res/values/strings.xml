@@ -1,25 +1,33 @@
 <resources>
     <string name="app_name">Wallet</string>
 
+    <!-- coin label -->
     <string name="dollar_name">Dolar</string>
     <string name="euro_name">Euro</string>
 
+    <!-- navigation label -->
     <string name="nav_name_money">Dinheiro</string>
     <string name="nav_name_stock">Bolsa</string>
     <string name="nav_name_calculator">Calculadora</string>
     <string name="nav_name_money_graphic">Grafico</string>
 
+    <!-- money home label -->
+    <string name="money_home_current_quote">Cotação atual</string>
+    <string name="money_home_variation_of_day">Variação do dia</string>
+    <string name="money_home_coin">Moeda</string>
+    <string name="money_home_converter">Conversor</string>
+    <string name="money_home_history">Historico</string>
+    <string name="money_home_error_info">Parece que ouve um error.</string>
+    <string name="money_home_error_networking_info">Verifique sua internet.</string>
+    <string name="money_home_reload">Recarregar</string>
+    <string name="money_home_last_days">Ultimos 30 dias</string>
+    <string name="money_home_other_currencies">Outras moedas</string>
+
+    <!-- graphic label -->
     <string-array name="list_money_label">
         <item>Dolar/Real</item>
         <item>Euro/Real</item>
     </string-array>
-
-    <string name="money_view_calculator">Calculadora</string>
-    <string name="money_view_graphic">Grafico</string>
-    <string name="money_view_coin">Moedas:</string>
-    <string name="money_view_last_update">Ultima atualização:</string>
-    <string name="money_view_last_five_days">Ultimos 5 dias</string>
-    <string name="money_view_min_max_day">Max/Min do dia:</string>
 
     <string name="money_graphic_5_days">5 Dias</string>
     <string name="money_graphic_15_days">15 Dias</string>
