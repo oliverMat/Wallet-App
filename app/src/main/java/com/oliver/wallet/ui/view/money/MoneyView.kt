@@ -51,9 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -88,7 +86,7 @@ fun MoneyView(
 
         ConnectionStatus.Loading -> LoadingScreen()
 
-        ConnectionStatus.Error -> ErrorScreen()
+        ConnectionStatus.Error -> ErrorScreen(uiState, viewModel)
     }
 }
 
@@ -180,20 +178,71 @@ private fun LoadingScreen() {
     PrincipalColumn {
         ShimmerEffect(
             modifier = Modifier
-                .height(386.dp)
+                .height(219.dp)
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(8.dp)
                 .background(
                     MaterialTheme.colorScheme.tertiary,
-                    RoundedCornerShape(10.dp)
+                    RoundedCornerShape(12.dp)
                 )
         )
+        Spacer(modifier = Modifier.size(10.dp))
+        Row {
+            ButtonLabel(
+                "Conversor",
+                painterResource(id = R.drawable.calculate),
+                onClick = { })
+            Spacer(modifier = Modifier.size(30.dp))
+            ButtonLabel(
+                "Historico",
+                painterResource(id = R.drawable.bar_chart),
+                onClick = { })
+        }
+        Spacer(modifier = Modifier.size(15.dp))
+        ShimmerEffect(
+            modifier = Modifier
+                .height(264.dp)
+                .fillMaxWidth()
+                .padding(8.dp)
+                .background(
+                    MaterialTheme.colorScheme.tertiary,
+                    RoundedCornerShape(12.dp)
+                )
+        )
+        Spacer(modifier = Modifier.size(35.dp))
+        ButtonDialog(false, onClick = { })
     }
 }
 
 @Composable
-private fun ErrorScreen() {
-
+private fun ErrorScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.secondary)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.signal_disconnected_24dp),
+            contentDescription = "Custom Money Icon",
+            Modifier.size(66.dp)
+        )
+        Spacer(Modifier.size(15.dp))
+        Text("Parece que ouve um error!", fontSize = 17.sp)
+        Spacer(Modifier.size(7.dp))
+        Text("Verifique sua internet.", fontSize = 13.sp)
+        Spacer(Modifier.size(15.dp))
+        Button(
+            modifier = Modifier.width(250.dp),
+            onClick = {
+                viewModel.selectCoin(uiState.coin!!)
+            }
+        ) {
+            Text("Recarregar")
+        }
+    }
 }
 
 @Composable
@@ -401,12 +450,10 @@ private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel)
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Button(
-            modifier = Modifier.width(250.dp),
-            onClick = { showBottomSheet = true }
-        ) {
-            Text("Outras moedas")
-        }
+
+        ButtonDialog(true, onClick = {
+            showBottomSheet = true
+        })
 
         if (showBottomSheet) {
             ModalBottomSheet(
@@ -430,6 +477,17 @@ private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ButtonDialog(enabled: Boolean, onClick: () -> Unit) {
+    Button(
+        enabled = enabled,
+        modifier = Modifier.width(250.dp),
+        onClick = onClick
+    ) {
+        Text("Outras moedas")
     }
 }
 
@@ -494,6 +552,6 @@ private fun negativeValueColor(value: String?): Color {
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        SuccessScreen(MoneyUiState(), rememberNavController(), viewModel())
+        LoadingScreen()
     }
 }
