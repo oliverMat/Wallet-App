@@ -29,6 +29,7 @@ private val LightColorScheme = lightColorScheme(
     primary = fluorescentGreen,
     onPrimary = lightGreen,
     secondary = whitGrey,
+    onSecondary = grey,
     tertiary = darkGreen,
     background = with,
     onError = red

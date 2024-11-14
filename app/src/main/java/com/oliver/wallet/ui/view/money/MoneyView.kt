@@ -158,12 +158,12 @@ private fun SuccessScreen(
         }
         Spacer(modifier = Modifier.size(10.dp))
         Row {
-            ButtonLabel(
+            ButtonLabel(true,
                 stringResource(R.string.money_home_converter),
                 painterResource(id = R.drawable.calculate),
                 onClick = { navController.navigate(WalletScreen.Calculator.name) })
             Spacer(modifier = Modifier.size(30.dp))
-            ButtonLabel(
+            ButtonLabel(true,
                 stringResource(R.string.money_home_history),
                 painterResource(id = R.drawable.bar_chart),
                 onClick = { navController.navigate(WalletScreen.MoneyGraphic.name) })
@@ -190,12 +190,12 @@ private fun LoadingScreen() {
         )
         Spacer(modifier = Modifier.size(10.dp))
         Row {
-            ButtonLabel(
+            ButtonLabel(false,
                 stringResource(R.string.money_home_converter),
                 painterResource(id = R.drawable.calculate),
                 onClick = { })
             Spacer(modifier = Modifier.size(30.dp))
-            ButtonLabel(
+            ButtonLabel(false,
                 stringResource(R.string.money_home_history),
                 painterResource(id = R.drawable.bar_chart),
                 onClick = { })
@@ -333,13 +333,13 @@ private fun MaxMin(price: MoneyModel?) {
 }
 
 @Composable
-private fun ButtonLabel(label: String, image: Painter, onClick: () -> Unit) {
+private fun ButtonLabel(enabled: Boolean, label: String, image: Painter, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable(onClick = onClick)
     ) {
         OutlinedCard(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+            colors = CardDefaults.cardColors(containerColor = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 0.dp
             ),
