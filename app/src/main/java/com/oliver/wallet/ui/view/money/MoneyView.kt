@@ -341,7 +341,7 @@ private fun ButtonLabel(enabled: Boolean, label: String, image: Painter, onClick
         OutlinedCard(
             colors = CardDefaults.cardColors(containerColor = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 0.dp
+                defaultElevation = 1.dp
             ),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
         ) {
@@ -490,6 +490,7 @@ private fun ButtonDialog(enabled: Boolean, onClick: () -> Unit) {
         modifier = Modifier.width(250.dp),
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onPrimary),
+        elevation = ButtonDefaults.elevatedButtonElevation(1.dp),
         border = BorderStroke(
             width = 1.dp,
             color = MaterialTheme.colorScheme.background
