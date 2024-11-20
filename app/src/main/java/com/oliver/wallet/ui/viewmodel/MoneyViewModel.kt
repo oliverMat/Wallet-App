@@ -65,6 +65,7 @@ class MoneyViewModel(
         }
         setConnectionStatus(ConnectionStatus.Loading)
         viewModelScope.launch {
+            delay(UPDATE_INTERVAL_2_SEG)
             setComponents(_uiState.value.typeMoney, daily)
         }
     }
