@@ -2,9 +2,7 @@ package com.oliver.wallet.ui.view.graphic.money
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,13 +17,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Chip
-import androidx.compose.material.ChipDefaults
 import androidx.compose.material.DropdownMenu
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,12 +41,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavHostController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -58,15 +61,14 @@ import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.DateValueFormatter
-import com.oliver.wallet.util.TypeMoney
 
 
 @Composable
-fun MoneyGraphicView(viewModel: MoneyViewModel) {
+fun MoneyGraphicView(navController: NavHostController, viewModel: MoneyViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     when (uiState.connectionState) {
-        ConnectionStatus.Success -> SuccessScreen(uiState, viewModel)
+        ConnectionStatus.Success -> SuccessScreen(uiState, viewModel, navController)
 
         ConnectionStatus.Loading -> LoadingScreen(uiState)
 
@@ -75,25 +77,83 @@ fun MoneyGraphicView(viewModel: MoneyViewModel) {
 }
 
 @Composable
-private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
+private fun SuccessScreen(
+    uiState: MoneyUiState,
+    viewModel: MoneyViewModel,
+    navController: NavHostController
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.tertiary)
+            .background(MaterialTheme.colorScheme.secondary)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            SingleSelectChipList(viewModel, uiState, Modifier.weight(1f))
-            Spacer(modifier = Modifier.size(10.dp))
-            MinMaxInList(uiState)
-            Spacer(modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+        ) {
+            Row {
+                OutlinedCard(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 1.dp
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.background)
+                ) {
+                    IconButton(
+                        modifier = Modifier.padding(vertical = 6.dp),
+                        onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            contentDescription = null
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.size(10.dp))
+                ElevatedCardTemplate {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(7.dp)
+                    ) {
+                        Column(horizontalAlignment = Alignment.Start) {
+                            Text(
+                                "Moeda:",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontSize = 12.sp
+                            )
+                            Spacer(modifier = Modifier.size(5.dp))
+                            Text(
+                                "${uiState.coin?.label} - ${uiState.price?.code}",
+                                modifier = Modifier.padding(horizontal = 5.dp),
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+                        Spacer(modifier = Modifier.size(20.dp))
+                        MinMaxInList(uiState)
+                    }
+                }
+            }
             DropDown(viewModel, uiState.dailyChart)
         }
-        Spacer(modifier = Modifier.size(20.dp))
-        DescriptionChart()
         Chart(uiState.chart, Modifier.weight(1f))
-        Spacer(modifier = Modifier.size(20.dp))
+    }
+}
+
+@Composable
+private fun ElevatedCardTemplate(item: @Composable (modifier: Modifier) -> Unit) {
+    ElevatedCard(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiary,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        )
+    ) {
+        item(Modifier.weight(1f))
     }
 }
 
@@ -107,7 +167,6 @@ private fun LoadingScreen(uiState: MoneyUiState) {
             .padding(horizontal = 20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            SingleSelectChipList(null, uiState, Modifier.weight(1f))
             Spacer(modifier = Modifier.size(10.dp))
             ShimmerEffect(
                 modifier = Modifier
@@ -141,93 +200,36 @@ private fun ErrorScreen() {
 
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun SingleSelectChipList(
-    viewModel: MoneyViewModel?,
-    uiState: MoneyUiState,
-    modifier: Modifier
-) {
-    val label = stringArrayResource(R.array.list_money_label).toList()
-
-    val selected by remember {
-        mutableStateOf<String?>(
-            label[when (uiState.typeMoney) {
-                TypeMoney.Dollar -> 0
-                TypeMoney.Euro -> 1
-            }]
-        )
-    }
-
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState())
-        ) {
-            label.forEachIndexed { index, it ->
-                val isSelected = it == selected
-                Chip(
-                    border = BorderStroke(
-                        width = 1.0.dp,
-                        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                    ),
-                    colors = ChipDefaults.chipColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
-                    onClick = {
-                        viewModel ?: return@Chip
-
-                        if (selected == it) return@Chip
-
-//                        viewModel.selectMoneySymbol(
-//                            when (index) {
-//                                0 -> TypeMoney.Dollar
-//                                else -> TypeMoney.Euro
-//                            }
-//                        )
-                    },
-                ) {
-                    Text(
-                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 19.dp),
-                        text = it,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Composable
 fun MinMaxInList(chart: MoneyUiState) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            contentAlignment = Alignment.Center, modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(5.dp)
-        ) {
-            Box(
-                contentAlignment = Alignment.Center, modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.secondary)
-                    .padding(2.dp)
-            ) {}
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(5.dp)) {
+        Column {
+            Text(
+                "Max:", color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 12.sp
+            )
+            Spacer(modifier = Modifier.size(5.dp))
+            Text(
+                "${chart.getMaxYDecimalChart()} / ${chart.getDateMaxChart()}",
+                color = MaterialTheme.colorScheme.secondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 5.dp),
+            )
         }
-        Spacer(modifier = Modifier.size(12.dp))
-        Text("Max:", color = MaterialTheme.colorScheme.secondary)
-        Spacer(modifier = Modifier.size(5.dp))
-        Text(
-            "${chart.getMaxYDecimalChart()}\n${chart.getDateMaxChart()}",
-            color = MaterialTheme.colorScheme.secondary,
-            textAlign = TextAlign.Center
-        )
         Spacer(modifier = Modifier.size(20.dp))
-        Text("Min:", color = MaterialTheme.colorScheme.secondary)
-        Spacer(modifier = Modifier.size(5.dp))
-        Text(
-            "${chart.getMinYDecimalChart()}\n${chart.getDateMinChart()}",
-            color = MaterialTheme.colorScheme.secondary,
-            textAlign = TextAlign.Center
-        )
+        Column {
+            Text(
+                "Min:", color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 12.sp
+            )
+            Spacer(modifier = Modifier.size(5.dp))
+            Text(
+                "${chart.getMinYDecimalChart()} / ${chart.getDateMinChart()}",
+                color = MaterialTheme.colorScheme.secondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 5.dp),
+            )
+        }
     }
 }
 
@@ -251,31 +253,24 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
         mutableStateOf(false)
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
-        viewModel ?: return@clickable
-        isDropDownExpanded.value = true
-    }) {
-        Box(
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        OutlinedCard(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 1.dp
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
             modifier = Modifier
-                .width(75.dp)
-                .height(35.dp)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.secondary,
-                    shape = RoundedCornerShape(20.dp)
-                )
+                .clickable {
+                    viewModel ?: return@clickable
+                    isDropDownExpanded.value = true
+                }
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Text(
-                    text = stringResource(list[itemPosition.intValue].first),
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            }
+            Text(
+                text = stringResource(list[itemPosition.intValue].first),
+                color = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+            )
             DropdownMenu(
                 expanded = isDropDownExpanded.value,
                 onDismissRequest = {
@@ -294,15 +289,13 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
                 }
             }
         }
+        Spacer(modifier = Modifier.size(4.dp))
+        Text(
+            "Periodo",
+            color = MaterialTheme.colorScheme.tertiary,
+            fontSize = 12.sp,
+        )
     }
-}
-
-@Composable
-private fun DescriptionChart() {
-    Text(
-        stringResource(R.string.money_graphic_description_chart),
-        color = MaterialTheme.colorScheme.secondary
-    )
 }
 
 @Composable
@@ -347,53 +340,105 @@ fun Chart(listItems: List<Entry>?, modifier: Modifier) {
         lineData = LineData(dataSet, minMaxDataSet)
     }
 
-    AndroidView(
-        modifier = modifier
-            .fillMaxSize(),
-        factory = { context ->
-            LineChart(context).apply {
-                description.isEnabled = false // Remove the description
-                setTouchEnabled(true)
-                setPinchZoom(false)
-                setScaleEnabled(false)
+    ElevatedCard(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiary,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        ),
+        modifier = modifier.padding(10.dp)
+    ) {
+        DescriptionChart()
+        AndroidView(
+            modifier = modifier
+                .padding(10.dp)
+                .fillMaxSize(),
+            factory = { context ->
+                LineChart(context).apply {
+                    description.isEnabled = false // Remove the description
+                    setTouchEnabled(true)
+                    setPinchZoom(false)
+                    setScaleEnabled(false)
 
-                xAxis.apply {
-                    setDrawGridLines(false) // Disable grid lines
-                    setDrawAxisLine(true) // Disable axis line
-                    setDrawLabels(true) // Disable the X axis labels
-                    textColor = secondaryColor
-                    position = XAxis.XAxisPosition.BOTTOM
-                    textSize = 14f // Set the font size for X axis labels
-                    spaceMin = 0.5f
-                    valueFormatter = DateValueFormatter()
-                    axisMinimum = 0f
-                    labelRotationAngle = 0f
-                    isGranularityEnabled = true
+                    xAxis.apply {
+                        setDrawGridLines(false) // Disable grid lines
+                        setDrawAxisLine(true) // Disable axis line
+                        setDrawLabels(true) // Disable the X axis labels
+                        textColor = secondaryColor
+                        position = XAxis.XAxisPosition.BOTTOM
+                        textSize = 14f // Set the font size for X axis labels
+                        spaceMin = 0.5f
+                        valueFormatter = DateValueFormatter()
+                        axisMinimum = 0f
+                        labelRotationAngle = 0f
+                        isGranularityEnabled = true
+                    }
+
+                    axisLeft.apply {
+                        setDrawGridLines(false) // Disable grid lines
+                        setDrawAxisLine(false) // Disable axis line
+                        textSize = 14f // Set the font size for Y axis labels
+                        textColor = secondaryColor
+                    }
+
+                    customMarkerView.setMarkerView(listItems)
+                    marker = customMarkerView
+
+                    axisRight.isEnabled = false // Disable the right Y axis
+                    legend.isEnabled = false // Disable the legend
+
+                    data = lineData
+                    invalidate()
                 }
-
-                axisLeft.apply {
-                    setDrawGridLines(false) // Disable grid lines
-                    setDrawAxisLine(false) // Disable axis line
-                    textSize = 14f // Set the font size for Y axis labels
-                    textColor = secondaryColor
-                }
-
+            },
+            update = {
+                it.data = lineData
                 customMarkerView.setMarkerView(listItems)
-                marker = customMarkerView
+                it.marker = customMarkerView
+                it.invalidate()
+            })
+    }
+}
 
-                axisRight.isEnabled = false // Disable the right Y axis
-                legend.isEnabled = false // Disable the legend
-
-                data = lineData
-                invalidate()
+@Composable
+private fun DescriptionChart() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(start = 10.dp, top = 10.dp)
+    ) {
+        Text(
+            stringResource(R.string.money_graphic_description_chart),
+            color = MaterialTheme.colorScheme.secondary,
+            fontSize = 10.sp
+        )
+        Spacer(modifier = Modifier.size(5.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .size(14.dp)
+                    .background(MaterialTheme.colorScheme.primary)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .size(3.dp)
+                        .background(MaterialTheme.colorScheme.secondary)
+                        .align(Alignment.Center) // Centraliza esta Box na Box externa
+                )
             }
-        },
-        update = {
-            it.data = lineData
-            customMarkerView.setMarkerView(listItems)
-            it.marker = customMarkerView
-            it.invalidate()
-        })
+            Text(
+                "Max/Min do periodo",
+                color = MaterialTheme.colorScheme.secondary,
+                fontSize = 10.sp,
+                modifier = Modifier.padding(start = 5.dp)
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
