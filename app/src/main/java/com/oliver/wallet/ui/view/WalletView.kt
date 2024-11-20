@@ -59,30 +59,31 @@ fun WalletAppBar(
     currentScreen: String,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    showNavigationIcon: Boolean
+    showNavigationIcon: Boolean,
+    enableTopBar: Boolean
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                currentScreen,
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = MaterialTheme.colorScheme.tertiary),
-        modifier = modifier,
-        navigationIcon = {
-            if (showNavigationIcon) {
-                IconButton(onClick = navigateUp) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        tint = MaterialTheme.colorScheme.secondary,
-                        contentDescription = null
-                    )
-                }
+    if (enableTopBar)
+        TopAppBar(
+            title = {
+                Text(
+                    currentScreen,
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            },
+            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = MaterialTheme.colorScheme.tertiary),
+            modifier = modifier,
+            navigationIcon = {
+                if (showNavigationIcon)
+                    IconButton(onClick = navigateUp) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            tint = MaterialTheme.colorScheme.secondary,
+                            contentDescription = null
+                        )
+                    }
             }
-        }
-    )
+        )
 }
 
 @Composable
@@ -97,7 +98,8 @@ fun WalletApp(
             WalletAppBar(
                 currentScreen = (currentRoute(navController)) ?: WalletScreen.Money.name,
                 navigateUp = { navController.navigateUp() },
-                showNavigationIcon = showNavigationIcon(navController, bottomNavItems)
+                showNavigationIcon = showNavigationIcon(navController, bottomNavItems),
+                enableTopBar = (currentRoute(navController) != WalletScreen.MoneyGraphic.name)
             )
         },
         bottomBar = {
@@ -114,7 +116,12 @@ fun WalletApp(
             composable(Screen.Money.route) { MoneyScreen(navController, moneyViewModel) }
             composable(Screen.Stock.route) { StockScreen(navController) }
             composable(Screen.Calculator.route) { CalculatorScreen(moneyViewModel) }
-            composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(moneyViewModel) }
+            composable(Screen.MoneyGraphic.route) {
+                MoneyGraphicScreen(
+                    navController,
+                    moneyViewModel
+                )
+            }
         }
     }
 }
@@ -193,7 +200,7 @@ private fun CalculatorScreen(viewModel: MoneyViewModel) {
 }
 
 @Composable
-private fun MoneyGraphicScreen(viewModel: MoneyViewModel) {
+private fun MoneyGraphicScreen(navController: NavHostController, viewModel: MoneyViewModel) {
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-    MoneyGraphicView(viewModel)
+    MoneyGraphicView(navController, viewModel)
 }
