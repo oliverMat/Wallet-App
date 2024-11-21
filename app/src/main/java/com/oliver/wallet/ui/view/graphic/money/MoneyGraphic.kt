@@ -96,46 +96,9 @@ private fun SuccessScreen(
                 .padding(horizontal = 10.dp)
         ) {
             Row {
-                OutlinedCard(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 1.dp
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.background)
-                ) {
-                    IconButton(
-                        modifier = Modifier.padding(vertical = 6.dp),
-                        onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            contentDescription = null
-                        )
-                    }
-                }
+                BackButton(navController, true)
                 Spacer(modifier = Modifier.size(10.dp))
-                ElevatedCardTemplate {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(7.dp)
-                    ) {
-                        Column(horizontalAlignment = Alignment.Start) {
-                            Text(
-                                "Moeda:",
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 12.sp
-                            )
-                            Spacer(modifier = Modifier.size(5.dp))
-                            Text(
-                                "${uiState.coin?.label} - ${uiState.price?.code}",
-                                modifier = Modifier.padding(horizontal = 5.dp),
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-                        Spacer(modifier = Modifier.size(20.dp))
-                        MinMaxInList(uiState)
-                    }
-                }
+                Dashboard(uiState)
             }
             DropDown(viewModel, uiState.dailyChart)
         }
@@ -144,44 +107,35 @@ private fun SuccessScreen(
 }
 
 @Composable
-private fun ElevatedCardTemplate(item: @Composable (modifier: Modifier) -> Unit) {
-    ElevatedCard(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiary,
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        )
-    ) {
-        item(Modifier.weight(1f))
-    }
-}
-
-@Composable
 private fun LoadingScreen(uiState: MoneyUiState) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.tertiary)
+            .background(MaterialTheme.colorScheme.secondary)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Spacer(modifier = Modifier.size(10.dp))
-            ShimmerEffect(
-                modifier = Modifier
-                    .width(205.dp)
-                    .height(40.dp)
-                    .background(
-                        MaterialTheme.colorScheme.tertiary,
-                        RoundedCornerShape(10.dp)
-                    )
-            )
-            Spacer(modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+        ) {
+            Row {
+                BackButton(null, false)
+                Spacer(modifier = Modifier.size(10.dp))
+                ShimmerEffect(
+                    modifier = Modifier
+                        .height(60.dp)
+                        .width(370.dp)
+                        .background(
+                            MaterialTheme.colorScheme.tertiary,
+                            RoundedCornerShape(12.dp)
+                        )
+                )
+            }
             DropDown(null, uiState.dailyChart)
         }
-        Spacer(modifier = Modifier.size(20.dp))
-        DescriptionChart()
         ShimmerEffect(
             modifier = Modifier
                 .fillMaxWidth()
@@ -189,7 +143,7 @@ private fun LoadingScreen(uiState: MoneyUiState) {
                 .padding(10.dp)
                 .background(
                     MaterialTheme.colorScheme.tertiary,
-                    RoundedCornerShape(10.dp)
+                    RoundedCornerShape(12.dp)
                 )
         )
     }
@@ -201,34 +155,78 @@ private fun ErrorScreen() {
 }
 
 @Composable
-fun MinMaxInList(chart: MoneyUiState) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(5.dp)) {
-        Column {
-            Text(
-                "Max:", color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 12.sp
-            )
-            Spacer(modifier = Modifier.size(5.dp))
-            Text(
-                "${chart.getMaxYDecimalChart()} / ${chart.getDateMaxChart()}",
-                color = MaterialTheme.colorScheme.secondary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 5.dp),
+fun BackButton(navController: NavHostController?, enabled: Boolean) {
+    OutlinedCard(
+        colors = CardDefaults.cardColors(containerColor = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 1.dp
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.background)
+    ) {
+        IconButton(
+            modifier = Modifier.padding(vertical = 6.dp),
+            onClick = { navController?.navigateUp() ?: return@IconButton }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                tint = MaterialTheme.colorScheme.tertiary,
+                contentDescription = null
             )
         }
-        Spacer(modifier = Modifier.size(20.dp))
-        Column {
-            Text(
-                "Min:", color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 12.sp
-            )
-            Spacer(modifier = Modifier.size(5.dp))
-            Text(
-                "${chart.getMinYDecimalChart()} / ${chart.getDateMinChart()}",
-                color = MaterialTheme.colorScheme.secondary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 5.dp),
-            )
+    }
+}
+
+@Composable
+fun Dashboard(uiState: MoneyUiState) {
+    ElevatedCard(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiary,
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        )
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(12.dp)) {
+            Column {
+                Text(
+                    "Moeda:",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 12.sp
+                )
+                Spacer(modifier = Modifier.size(5.dp))
+                Text(
+                    "${uiState.coin?.label} - ${uiState.price?.code}",
+                    modifier = Modifier.padding(horizontal = 5.dp),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+            Spacer(modifier = Modifier.size(20.dp))
+            Column {
+                Text(
+                    "Max:", color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 12.sp
+                )
+                Spacer(modifier = Modifier.size(5.dp))
+                Text(
+                    "${uiState.getMaxYDecimalChart()} / ${uiState.getDateMaxChart()}",
+                    color = MaterialTheme.colorScheme.secondary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 5.dp),
+                )
+            }
+            Spacer(modifier = Modifier.size(20.dp))
+            Column {
+                Text(
+                    "Min:", color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 12.sp
+                )
+                Spacer(modifier = Modifier.size(5.dp))
+                Text(
+                    "${uiState.getMinYDecimalChart()} / ${uiState.getDateMinChart()}",
+                    color = MaterialTheme.colorScheme.secondary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 5.dp),
+                )
+            }
         }
     }
 }
@@ -255,7 +253,7 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         OutlinedCard(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+            colors = CardDefaults.cardColors(containerColor = if (viewModel != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 1.dp
             ),
