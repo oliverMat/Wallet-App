@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Scaffold
@@ -21,7 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -39,51 +40,76 @@ import com.oliver.wallet.ui.view.stock.StockView
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.WalletScreen
 
-sealed class Screen(val route: String, val label: Int, val icon: Int?) {
+sealed class Screen(
+    val route: String,
+    val label: Int,
+    val bottomNavIcon: Int?,
+    val appBarIcon: Int
+) {
     data object Money :
-        Screen(WalletScreen.Money.name, R.string.nav_name_money, R.drawable.money_icon)
+        Screen(
+            WalletScreen.Money.name,
+            R.string.nav_name_money,
+            R.drawable.money_icon,
+            R.drawable.money_font_belleza
+        )
 
     data object Stock :
-        Screen(WalletScreen.Stock.name, R.string.nav_name_stock, R.drawable.show_chart_icon)
+        Screen(
+            WalletScreen.Stock.name,
+            R.string.nav_name_stock,
+            R.drawable.show_chart_icon,
+            R.drawable.exchange_font_belleza
+        )
 
     data object Calculator :
-        Screen(WalletScreen.Calculator.name, R.string.nav_name_calculator, null)
+        Screen(
+            WalletScreen.Calculator.name,
+            R.string.nav_name_calculator,
+            null,
+            R.drawable.calculator_font_belleza
+        )
 
     data object MoneyGraphic :
-        Screen(WalletScreen.MoneyGraphic.name, R.string.nav_name_money_graphic, null)
+        Screen(
+            WalletScreen.MoneyGraphic.name,
+            R.string.nav_name_money_graphic,
+            null,
+            R.drawable.graphic_font_belleza
+        )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletAppBar(
-    currentScreen: String,
+    labelIcon: Int,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    showNavigationIcon: Boolean,
-    enableTopBar: Boolean
+    showNavigationIcon: Boolean
 ) {
-    if (enableTopBar)
-        TopAppBar(
-            title = {
-                Text(
-                    currentScreen,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            },
-            colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = MaterialTheme.colorScheme.tertiary),
-            modifier = modifier,
-            navigationIcon = {
-                if (showNavigationIcon)
-                    IconButton(onClick = navigateUp) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            tint = MaterialTheme.colorScheme.secondary,
-                            contentDescription = null
-                        )
-                    }
-            }
-        )
+    TopAppBar(
+        title = {
+            Image(
+                painter = painterResource(labelIcon),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(130.dp)
+                    .padding(bottom = 5.dp)
+            )
+        },
+        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+        modifier = modifier,
+        navigationIcon = {
+            if (showNavigationIcon)
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        contentDescription = null
+                    )
+                }
+        }
+    )
 }
 
 @Composable
@@ -91,16 +117,17 @@ fun WalletApp(
     navController: NavHostController = rememberNavController(),
     moneyViewModel: MoneyViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val allScreens = listOf(Screen.Money, Screen.Stock, Screen.Calculator, Screen.MoneyGraphic)
     val bottomNavItems = listOf(Screen.Money, Screen.Stock)
 
     Scaffold(
         topBar = {
-            WalletAppBar(
-                currentScreen = (currentRoute(navController)) ?: WalletScreen.Money.name,
-                navigateUp = { navController.navigateUp() },
-                showNavigationIcon = showNavigationIcon(navController, bottomNavItems),
-                enableTopBar = (currentRoute(navController) != WalletScreen.MoneyGraphic.name)
-            )
+            if ((currentRoute(navController) != WalletScreen.MoneyGraphic.name))
+                WalletAppBar(
+                    labelIcon = getLabelIcon(allScreens, currentRoute(navController)),
+                    navigateUp = { navController.navigateUp() },
+                    showNavigationIcon = showNavigationIcon(navController, bottomNavItems)
+                )
         },
         bottomBar = {
             if (currentRoute(navController) in bottomNavItems.map { it.route }) {
@@ -134,7 +161,7 @@ private fun BottomNavigationBar(navController: NavController, bottomNavItems: Li
             BottomNavigationItem(
                 icon = {
                     Image(
-                        painter = painterResource(id = screen.icon!!),
+                        painter = painterResource(id = screen.bottomNavIcon!!),
                         contentDescription = "Custom Icon",
                     )
                 },
@@ -176,6 +203,13 @@ private fun showNavigationIcon(
     bottomNavItems: List<Screen>
 ): Boolean {
     return (currentRoute(navController) !in bottomNavItems.map { it.route })
+}
+
+@Composable
+private fun getLabelIcon(bottomNavItems: List<Screen>, currentRoute: String?): Int {
+    val index = bottomNavItems.map { it.route }.indexOf(currentRoute ?: WalletScreen.Money.name)
+
+    return bottomNavItems[index].appBarIcon
 }
 
 @Composable
