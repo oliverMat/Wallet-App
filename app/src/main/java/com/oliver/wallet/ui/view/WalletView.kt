@@ -122,7 +122,6 @@ fun WalletApp(
 
     Scaffold(
         topBar = {
-            if ((currentRoute(navController) != WalletScreen.MoneyGraphic.name))
                 WalletAppBar(
                     labelIcon = getLabelIcon(allScreens, currentRoute(navController)),
                     navigateUp = { navController.navigateUp() },
