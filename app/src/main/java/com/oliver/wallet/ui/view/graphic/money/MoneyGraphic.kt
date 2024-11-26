@@ -255,7 +255,7 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
         OutlinedCard(
             colors = CardDefaults.cardColors(containerColor = if (viewModel != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+                defaultElevation = 0.dp
             ),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
             modifier = Modifier
