@@ -254,7 +254,7 @@ private fun PrincipalColumn(item: @Composable (modifier: Modifier) -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondary)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()).padding(top = 8.dp)
     ) {
         item(Modifier.weight(1f))
     }
