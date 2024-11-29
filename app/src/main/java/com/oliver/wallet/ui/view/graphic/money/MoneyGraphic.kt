@@ -250,10 +250,11 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
                         Text(text = stringResource(period.first))
                     },
                         onClick = {
-                            viewModel ?: return@DropdownMenuItem
-                            isDropDownExpanded.value = false
-                            itemPosition.intValue = index
-                            viewModel.setPeriodChart(period.second.toString())
+                            if (itemPosition.intValue != index) {
+                                isDropDownExpanded.value = false
+                                itemPosition.intValue = index
+                                viewModel?.setPeriodChart(period.second.toString())
+                            }
                         })
                 }
             }
