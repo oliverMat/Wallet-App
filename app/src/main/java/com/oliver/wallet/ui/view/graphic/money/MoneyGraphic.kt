@@ -3,29 +3,23 @@ package com.oliver.wallet.ui.view.graphic.money
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
@@ -42,12 +36,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.navigation.NavHostController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -57,6 +51,7 @@ import com.oliver.wallet.R
 import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.ui.theme.WalletTheme
 import com.oliver.wallet.ui.view.common.CustomMarkerView
+import com.oliver.wallet.ui.view.common.ErrorScreenTemplate
 import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
@@ -64,115 +59,86 @@ import com.oliver.wallet.util.DateValueFormatter
 
 
 @Composable
-fun MoneyGraphicView(navController: NavHostController, viewModel: MoneyViewModel) {
+fun MoneyGraphicView(viewModel: MoneyViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     when (uiState.connectionState) {
-        ConnectionStatus.Success -> SuccessScreen(uiState, viewModel, navController)
+        ConnectionStatus.Success -> SuccessScreen(uiState, viewModel)
 
         ConnectionStatus.Loading -> LoadingScreen(uiState)
 
-        ConnectionStatus.Error -> ErrorScreen()
+        ConnectionStatus.Error -> ErrorScreen(uiState, viewModel)
     }
 }
 
 @Composable
 private fun SuccessScreen(
     uiState: MoneyUiState,
-    viewModel: MoneyViewModel,
-    navController: NavHostController
+    viewModel: MoneyViewModel
 ) {
-    Column(
+    Spacer(modifier = Modifier.size(10.dp))
+    Row(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondary)
-            .verticalScroll(rememberScrollState())
+            .horizontalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.size(8.dp))
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp)
+        Chart(
+            uiState.chart,
+            Modifier.weight(1f)
+        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(end = 10.dp)
         ) {
-            Row {
-                BackButton(navController, true)
-                Spacer(modifier = Modifier.size(10.dp))
-                Dashboard(uiState)
-            }
             DropDown(viewModel, uiState.dailyChart)
+            Spacer(modifier = Modifier.size(10.dp))
+            Dashboard(uiState)
         }
-        Chart(uiState.chart, Modifier.weight(1f))
     }
 }
 
 @Composable
 private fun LoadingScreen(uiState: MoneyUiState) {
-    Column(
+    Spacer(modifier = Modifier.size(8.dp))
+    Row(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondary)
-            .verticalScroll(rememberScrollState())
+            .horizontalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.size(8.dp))
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp)
-        ) {
-            Row {
-                BackButton(null, false)
-                Spacer(modifier = Modifier.size(10.dp))
-                ShimmerEffect(
-                    modifier = Modifier
-                        .height(60.dp)
-                        .width(370.dp)
-                        .background(
-                            MaterialTheme.colorScheme.tertiary,
-                            RoundedCornerShape(12.dp)
-                        )
-                )
-            }
-            DropDown(null, uiState.dailyChart)
-        }
         ShimmerEffect(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
                 .padding(10.dp)
+                .fillMaxSize()
+                .weight(1f)
                 .background(
                     MaterialTheme.colorScheme.tertiary,
                     RoundedCornerShape(12.dp)
                 )
         )
-    }
-}
-
-@Composable
-private fun ErrorScreen() {
-
-}
-
-@Composable
-fun BackButton(navController: NavHostController?, enabled: Boolean) {
-    OutlinedCard(
-        colors = CardDefaults.cardColors(containerColor = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.background)
-    ) {
-        IconButton(
-            modifier = Modifier.padding(vertical = 6.dp),
-            onClick = { navController?.navigateUp() ?: return@IconButton }) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                tint = MaterialTheme.colorScheme.tertiary,
-                contentDescription = null
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(end = 10.dp)
+        ) {
+            DropDown(null, uiState.dailyChart)
+            Spacer(modifier = Modifier.size(10.dp))
+            ShimmerEffect(
+                modifier = Modifier
+                    .height(170.dp)
+                    .width(125.dp)
+                    .background(
+                        MaterialTheme.colorScheme.tertiary,
+                        RoundedCornerShape(12.dp)
+                    )
             )
         }
     }
+}
+
+@Composable
+private fun ErrorScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
+    ErrorScreenTemplate(uiState, viewModel)
 }
 
 @Composable
@@ -185,7 +151,7 @@ fun Dashboard(uiState: MoneyUiState) {
             defaultElevation = 0.dp
         )
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Column {
                 Text(
                     "Moeda:",
@@ -255,19 +221,24 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
         OutlinedCard(
             colors = CardDefaults.cardColors(containerColor = if (viewModel != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 0.dp
+                defaultElevation = 1.dp
             ),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
-            modifier = Modifier
+            modifier = Modifier.height(50.dp).width(120.dp)
+                .padding(top = 10.dp)
                 .clickable {
                     viewModel ?: return@clickable
                     isDropDownExpanded.value = true
                 }
         ) {
+            Spacer(modifier = Modifier.size(12.dp))
             Text(
                 text = stringResource(list[itemPosition.intValue].first),
                 color = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
+                modifier = Modifier.fillMaxSize()
             )
             DropdownMenu(
                 expanded = isDropDownExpanded.value,
@@ -287,12 +258,6 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
                 }
             }
         }
-        Spacer(modifier = Modifier.size(4.dp))
-        Text(
-            "Periodo",
-            color = MaterialTheme.colorScheme.tertiary,
-            fontSize = 12.sp,
-        )
     }
 }
 

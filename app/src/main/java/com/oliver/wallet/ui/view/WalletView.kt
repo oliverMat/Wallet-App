@@ -142,12 +142,7 @@ fun WalletApp(
             composable(Screen.Money.route) { MoneyScreen(navController, moneyViewModel) }
             composable(Screen.Stock.route) { StockScreen(navController) }
             composable(Screen.Calculator.route) { CalculatorScreen(moneyViewModel) }
-            composable(Screen.MoneyGraphic.route) {
-                MoneyGraphicScreen(
-                    navController,
-                    moneyViewModel
-                )
-            }
+            composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(moneyViewModel) }
         }
     }
 }
@@ -233,7 +228,7 @@ private fun CalculatorScreen(viewModel: MoneyViewModel) {
 }
 
 @Composable
-private fun MoneyGraphicScreen(navController: NavHostController, viewModel: MoneyViewModel) {
+private fun MoneyGraphicScreen(viewModel: MoneyViewModel) {
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-    MoneyGraphicView(navController, viewModel)
+    MoneyGraphicView(viewModel)
 }

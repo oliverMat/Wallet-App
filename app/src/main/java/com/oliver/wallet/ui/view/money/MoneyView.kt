@@ -65,6 +65,7 @@ import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.data.room.CoinModel
 import com.oliver.wallet.ui.theme.WalletTheme
 import com.oliver.wallet.ui.view.common.ComposableLifecycle
+import com.oliver.wallet.ui.view.common.ErrorScreenTemplate
 import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
@@ -218,33 +219,7 @@ private fun LoadingScreen() {
 
 @Composable
 private fun ErrorScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.signal_disconnected_24dp),
-            contentDescription = "Custom Money Icon",
-            Modifier.size(66.dp)
-        )
-        Spacer(Modifier.size(15.dp))
-        Text(stringResource(R.string.money_home_error_info), fontSize = 17.sp)
-        Spacer(Modifier.size(7.dp))
-        Text(stringResource(R.string.money_home_error_networking_info), fontSize = 13.sp)
-        Spacer(Modifier.size(15.dp))
-        Button(
-            modifier = Modifier.width(250.dp),
-            onClick = {
-                viewModel.selectCoin(uiState.coin!!)
-            }
-        ) {
-            Text(stringResource(R.string.money_home_reload))
-        }
-    }
+    ErrorScreenTemplate(uiState, viewModel)
 }
 
 @Composable
