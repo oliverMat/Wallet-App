@@ -40,9 +40,9 @@ fun ErrorScreenTemplate(uiState: MoneyUiState, viewModel: MoneyViewModel) {
             Modifier.size(66.dp)
         )
         Spacer(Modifier.size(15.dp))
-        Text(stringResource(R.string.money_home_error_info), fontSize = 17.sp)
+        Text(stringResource(R.string.error_info), fontSize = 17.sp)
         Spacer(Modifier.size(7.dp))
-        Text(stringResource(R.string.money_home_error_networking_info), fontSize = 13.sp)
+        Text(stringResource(R.string.error_networking_info), fontSize = 13.sp)
         Spacer(Modifier.size(15.dp))
         Button(
             modifier = Modifier.width(250.dp),
@@ -50,7 +50,7 @@ fun ErrorScreenTemplate(uiState: MoneyUiState, viewModel: MoneyViewModel) {
                 viewModel.selectCoin(uiState.coin!!)
             }
         ) {
-            Text(stringResource(R.string.money_home_reload))
+            Text(stringResource(R.string.error_reload))
         }
     }
 }

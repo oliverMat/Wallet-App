@@ -154,7 +154,7 @@ fun Dashboard(uiState: MoneyUiState) {
         Column(modifier = Modifier.padding(12.dp)) {
             Column {
                 Text(
-                    "Moeda:",
+                    stringResource(R.string.money_graphic_coin),
                     color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = 12.sp
                 )
@@ -391,11 +391,11 @@ private fun DescriptionChart() {
                         .clip(RoundedCornerShape(20.dp))
                         .size(3.dp)
                         .background(MaterialTheme.colorScheme.secondary)
-                        .align(Alignment.Center) // Centraliza esta Box na Box externa
+                        .align(Alignment.Center)
                 )
             }
             Text(
-                "Max/Min do periodo",
+                stringResource(R.string.money_graphic_max_min),
                 color = MaterialTheme.colorScheme.secondary,
                 fontSize = 10.sp,
                 modifier = Modifier.padding(start = 5.dp)
