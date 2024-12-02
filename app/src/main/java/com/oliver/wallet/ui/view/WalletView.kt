@@ -3,6 +3,9 @@ package com.oliver.wallet.ui.view
 import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -19,7 +22,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -89,13 +94,15 @@ fun WalletAppBar(
 ) {
     TopAppBar(
         title = {
-            Image(
-                painter = painterResource(labelIcon),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(130.dp)
-                    .padding(bottom = 5.dp)
-            )
+            Column (modifier = Modifier.fillMaxWidth()) {
+                Image(
+                    painter = painterResource(labelIcon),
+                    contentDescription = null,
+                    modifier = Modifier.align(alignment = if (!showNavigationIcon) Alignment.CenterHorizontally else Alignment.Start)
+                        .size(180.dp)
+                        .padding(bottom = 10.dp, end = 15.dp)
+                )
+            }
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = MaterialTheme.colorScheme.background),
         modifier = modifier,
