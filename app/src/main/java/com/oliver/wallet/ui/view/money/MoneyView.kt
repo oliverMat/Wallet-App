@@ -3,6 +3,7 @@ package com.oliver.wallet.ui.view.money
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
@@ -120,16 +122,10 @@ private fun SuccessScreen(
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 0.dp
             ),
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
+            modifier = Modifier.padding(8.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Column {
+            Row(modifier = Modifier.height(205.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
                     TitleText(stringResource(R.string.money_home_current_quote))
                     Price(uiState.price)
                     Spacer(modifier = Modifier.size(10.dp))
@@ -144,17 +140,30 @@ private fun SuccessScreen(
                         modifier = Modifier.padding(start = 18.dp, bottom = 10.dp)
                     )
                 }
-                Image(
-                    modifier = Modifier
-                        .padding(vertical = 10.dp, horizontal = 15.dp)
-                        .clickable {
-                            viewModel.setFavoriteCoin()
-                        },
-                    painter = if (uiState.coin?.isFavorite == true) painterResource(id = R.drawable.baseline_favorite_24) else painterResource(
-                        id = R.drawable.baseline_favorite_border_24
-                    ),
-                    contentDescription = "Custom Money Icon",
-                )
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .padding(vertical = 10.dp, horizontal = 18.dp)
+                            .clickable {
+                                viewModel.setFavoriteCoin()
+                            },
+                        painter = if (uiState.coin?.isFavorite == true) painterResource(id = R.drawable.baseline_favorite_24) else painterResource(
+                            id = R.drawable.baseline_favorite_border_24
+                        ),
+                        contentDescription = "Custom Money Icon",
+                    )
+                    Image(
+                        painter = painterResource(uiState.coin?.image!!),
+                        contentDescription = "image",
+                        modifier = Modifier
+                            .padding(vertical = 10.dp, horizontal = 15.dp)
+                            .size(27.dp)
+
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.size(10.dp))
@@ -181,7 +190,7 @@ private fun LoadingScreen() {
     PrincipalColumn {
         ShimmerEffect(
             modifier = Modifier
-                .height(219.dp)
+                .height(221.dp)
                 .fillMaxWidth()
                 .padding(8.dp)
                 .background(
@@ -229,7 +238,8 @@ private fun PrincipalColumn(item: @Composable (modifier: Modifier) -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondary)
-            .verticalScroll(rememberScrollState()).padding(top = 8.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(top = 8.dp)
     ) {
         item(Modifier.weight(1f))
     }
