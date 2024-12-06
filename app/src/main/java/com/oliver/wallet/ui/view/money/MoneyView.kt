@@ -3,7 +3,6 @@ package com.oliver.wallet.ui.view.money
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,11 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -115,73 +114,18 @@ private fun SuccessScreen(
     viewModel: MoneyViewModel
 ) {
     PrincipalColumn {
-        ElevatedCard(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-            ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 0.dp
-            ),
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Row(modifier = Modifier.height(205.dp)) {
-                Column(modifier = Modifier.weight(1f)) {
-                    TitleText(stringResource(R.string.money_home_current_quote))
-                    Price(uiState.price)
-                    Spacer(modifier = Modifier.size(10.dp))
-                    TitleText(stringResource(R.string.money_home_variation_of_day))
-                    MaxMin(uiState.price)
-                    Spacer(modifier = Modifier.size(10.dp))
-                    TitleText(stringResource(R.string.money_home_coin))
-                    Text(
-                        "${uiState.coin?.label} - ${uiState.price?.code}",
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontSize = 15.sp,
-                        modifier = Modifier.padding(start = 18.dp, bottom = 10.dp)
-                    )
-                }
-                Column(
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .padding(vertical = 10.dp, horizontal = 18.dp)
-                            .clickable {
-                                viewModel.setFavoriteCoin()
-                            },
-                        painter = if (uiState.coin?.isFavorite == true) painterResource(id = R.drawable.baseline_favorite_24) else painterResource(
-                            id = R.drawable.baseline_favorite_border_24
-                        ),
-                        contentDescription = "Custom Money Icon",
-                    )
-                    Image(
-                        painter = painterResource(uiState.coin?.image!!),
-                        contentDescription = "image",
-                        modifier = Modifier
-                            .padding(vertical = 10.dp, horizontal = 15.dp)
-                            .size(27.dp)
-
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.size(10.dp))
-        Row {
-            ButtonLabel(true,
-                stringResource(R.string.money_home_converter),
-                painterResource(id = R.drawable.calculate),
-                onClick = { navController.navigate(WalletScreen.Calculator.name) })
-            Spacer(modifier = Modifier.size(30.dp))
-            ButtonLabel(true,
-                stringResource(R.string.money_home_history),
-                painterResource(id = R.drawable.bar_chart),
-                onClick = { navController.navigate(WalletScreen.MoneyGraphic.name) })
-        }
+        TitleText(stringResource(R.string.money_home_current_quote))
+        Price(uiState.price)
         Spacer(modifier = Modifier.size(15.dp))
-        Chart(uiState.chart)
+        TitleText(stringResource(R.string.money_home_variation_of_day))
+        MaxMin(uiState.price)
+        Spacer(modifier = Modifier.size(15.dp))
+        TitleText(stringResource(R.string.money_home_coin))
+        NameMoney(uiState)
+        Spacer(modifier = Modifier.size(20.dp))
+        Chart(uiState.chart, navController)
         Spacer(modifier = Modifier.size(35.dp))
-        PartialBottomSheet(uiState, viewModel)
+        PartialBottomSheet(uiState, viewModel, navController)
     }
 }
 
@@ -199,21 +143,9 @@ private fun LoadingScreen() {
                 )
         )
         Spacer(modifier = Modifier.size(10.dp))
-        Row {
-            ButtonLabel(false,
-                stringResource(R.string.money_home_converter),
-                painterResource(id = R.drawable.calculate),
-                onClick = { })
-            Spacer(modifier = Modifier.size(30.dp))
-            ButtonLabel(false,
-                stringResource(R.string.money_home_history),
-                painterResource(id = R.drawable.bar_chart),
-                onClick = { })
-        }
-        Spacer(modifier = Modifier.size(15.dp))
         ShimmerEffect(
             modifier = Modifier
-                .height(264.dp)
+                .height(270.dp)
                 .fillMaxWidth()
                 .padding(8.dp)
                 .background(
@@ -221,8 +153,6 @@ private fun LoadingScreen() {
                     RoundedCornerShape(12.dp)
                 )
         )
-        Spacer(modifier = Modifier.size(35.dp))
-        ButtonDialog(false, onClick = { })
     }
 }
 
@@ -237,9 +167,9 @@ private fun PrincipalColumn(item: @Composable (modifier: Modifier) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(top = 8.dp)
+            .padding(horizontal = 5.dp)
     ) {
         item(Modifier.weight(1f))
     }
@@ -249,9 +179,13 @@ private fun PrincipalColumn(item: @Composable (modifier: Modifier) -> Unit) {
 private fun TitleText(title: String) {
     Text(
         title,
-        color = MaterialTheme.colorScheme.onPrimary,
-        modifier = Modifier.padding(10.dp),
-        fontSize = 12.sp
+        color = MaterialTheme.colorScheme.onTertiary,
+        modifier = Modifier
+            .padding(horizontal = 15.dp, vertical = 6.dp)
+            .fillMaxWidth(),
+        fontWeight = FontWeight.Bold,
+        fontSize = 13.sp,
+        textAlign = TextAlign.Start
     )
 }
 
@@ -259,29 +193,25 @@ private fun TitleText(title: String) {
 private fun Price(price: MoneyModel?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(start = 10.dp)
+        modifier = Modifier
+            .padding(start = 18.dp)
+            .fillMaxWidth()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.money_icon_white),
+            painter = painterResource(id = R.drawable.money_icon_black),
             contentDescription = "Custom Money Icon",
             Modifier.size(26.dp)
         )
         Text(
             text = "${price?.bid?.toFloat()?.toDecimalFormat()}",
-            fontSize = 25.sp,
+            fontSize = 26.sp,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.secondary
         )
         Spacer(modifier = Modifier.size(10.dp))
         Text(
-            text = "-",
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.secondary
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        Text(
             text = "${price?.pctChange}%",
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             textAlign = TextAlign.Center,
             color = negativeValueColor("${price?.pctChange}")
         )
@@ -291,7 +221,9 @@ private fun Price(price: MoneyModel?) {
 @Composable
 private fun MaxMin(price: MoneyModel?) {
     Row(
-        modifier = Modifier.padding(start = 11.dp)
+        modifier = Modifier
+            .padding(start = 18.dp)
+            .fillMaxWidth()
     ) {
         Image(
             painter = painterResource(id = R.drawable.arrow_up),
@@ -318,37 +250,32 @@ private fun MaxMin(price: MoneyModel?) {
 }
 
 @Composable
-private fun ButtonLabel(enabled: Boolean, label: String, image: Painter, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
+private fun NameMoney(uiState: MoneyUiState) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 25.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedCard(
-            colors = CardDefaults.cardColors(containerColor = if (enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 1.dp
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
-        ) {
-            Image(
-                painter = image,
-                contentDescription = "Custom Money Icon",
-                Modifier
-                    .padding(12.dp)
-                    .size(26.dp)
-            )
-        }
-        Spacer(modifier = Modifier.size(4.dp))
         Text(
-            label,
-            color = MaterialTheme.colorScheme.tertiary,
-            fontSize = 14.sp,
+            "${uiState.coin?.label} - ${uiState.price?.code}",
+            color = MaterialTheme.colorScheme.secondary,
+            fontSize = 15.sp,
+            modifier = Modifier.weight(1f)
+        )
+        Image(
+            painter = painterResource(uiState.coin?.image!!),
+            contentDescription = "image",
+            modifier = Modifier
+                .padding(horizontal = 15.dp)
+                .size(27.dp)
+
         )
     }
 }
 
 @Composable
-private fun Chart(listItems: List<Entry>?) {
+private fun Chart(listItems: List<Entry>?, navController: NavHostController) {
     var lineData by remember { mutableStateOf(LineData()) }
 
     val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
@@ -372,7 +299,7 @@ private fun Chart(listItems: List<Entry>?) {
     }
     ElevatedCard(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiary,
+            containerColor = MaterialTheme.colorScheme.onPrimary,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp
@@ -380,7 +307,9 @@ private fun Chart(listItems: List<Entry>?) {
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
+            .clickable { navController.navigate(WalletScreen.MoneyGraphic.name) }
     ) {
+        Spacer(modifier = Modifier.size(6.dp))
         TitleText(stringResource(R.string.money_home_last_days))
         AndroidView(
             modifier = Modifier
@@ -399,7 +328,7 @@ private fun Chart(listItems: List<Entry>?) {
                         setDrawLabels(true) // Disable the X axis labels
                         textColor = secondaryColor
                         position = XAxis.XAxisPosition.BOTTOM
-                        textSize = 10f // Set the font size for X axis labels
+                        textSize = 11f // Set the font size for X axis labels
                         valueFormatter = DateValueFormatter()
                         axisMinimum = 0f
                         labelRotationAngle = 0f
@@ -409,7 +338,7 @@ private fun Chart(listItems: List<Entry>?) {
                     axisLeft.apply {
                         setDrawGridLines(false) // Disable grid lines
                         setDrawAxisLine(false) // Disable axis line
-                        textSize = 10f // Set the font size for Y axis labels
+                        textSize = 11f // Set the font size for Y axis labels
                         textColor = secondaryColor
                     }
 
@@ -429,7 +358,11 @@ private fun Chart(listItems: List<Entry>?) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel) {
+private fun PartialBottomSheet(
+    uiState: MoneyUiState,
+    viewModel: MoneyViewModel,
+    navController: NavHostController
+) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -438,14 +371,36 @@ private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel)
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
-        ButtonDialog(true, onClick = {
-            showBottomSheet = true
-        })
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.size(10.dp))
+            ButtonWithLabel(
+                R.string.money_home_other_currencies,
+                MaterialTheme.colorScheme.primary,
+                onClick = {
+                    showBottomSheet = true
+                })
+            Spacer(modifier = Modifier.size(10.dp))
+            ButtonWithLabel(
+                R.string.money_home_converter,
+                MaterialTheme.colorScheme.tertiary,
+                onClick = {
+                    navController.navigate(WalletScreen.Calculator.name)
+                })
+            Spacer(modifier = Modifier.size(10.dp))
+            ButtonWithIcon(painterResource(id = if (uiState.coin?.isFavorite == true) R.drawable.baseline_favorite_24 else R.drawable.baseline_favorite_border_24),
+                onClick = {
+                    viewModel.setFavoriteCoin()
+                })
+            Spacer(modifier = Modifier.size(10.dp))
+        }
 
         if (showBottomSheet) {
             ModalBottomSheet(
-                containerColor = MaterialTheme.colorScheme.secondary,
+                containerColor = MaterialTheme.colorScheme.background,
                 modifier = Modifier.fillMaxHeight(),
                 sheetState = sheetState,
                 onDismissRequest = { showBottomSheet = false }
@@ -469,39 +424,54 @@ private fun PartialBottomSheet(uiState: MoneyUiState, viewModel: MoneyViewModel)
 }
 
 @Composable
-private fun ButtonDialog(enabled: Boolean, onClick: () -> Unit) {
+private fun ButtonWithLabel(text: Int, color: Color, onClick: () -> Unit) {
     Button(
-        enabled = enabled,
-        modifier = Modifier.width(250.dp),
+        modifier = Modifier.width(160.dp),
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = ButtonDefaults.elevatedButtonElevation(1.dp),
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.background
-        )
+        colors = ButtonDefaults.buttonColors(color),
+        elevation = ButtonDefaults.elevatedButtonElevation(0.dp),
     ) {
-        Text(stringResource(R.string.money_home_other_currencies))
+        Text(text = stringResource(text), fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
-fun CardList(coinModel: CoinModel, symbol: TypeMoney, onClick: () -> Unit) {
+private fun ButtonWithIcon(image: Painter, onClick: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
+    ) {
+        OutlinedCard(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
+            shape = RoundedCornerShape(CornerSize(23.dp)),
+        ) {
+            Image(
+                painter = image,
+                contentDescription = "Custom Money Icon",
+                Modifier
+                    .padding(12.dp)
+                    .size(20.dp)
+            )
+        }
+    }
+}
 
+@Composable
+private fun CardList(coinModel: CoinModel, symbol: TypeMoney, onClick: () -> Unit) {
     OutlinedCard(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 5.dp)
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(CornerSize(10.dp)),
-        colors = if (coinModel.typeMoney == symbol) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary) else CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
-        ),
+        colors = CardDefaults.cardColors(containerColor = if (coinModel.typeMoney == symbol) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = if (coinModel.typeMoney == symbol) BorderStroke(
+        border = BorderStroke(
             1.dp,
-            MaterialTheme.colorScheme.background
-        ) else BorderStroke(1.dp, MaterialTheme.colorScheme.secondary),
+            if (coinModel.typeMoney == symbol) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onPrimary
+        ),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(5.dp)) {
             Image(
@@ -520,9 +490,7 @@ fun CardList(coinModel: CoinModel, symbol: TypeMoney, onClick: () -> Unit) {
                     .weight(1f)
             )
             Image(
-                painter = if (coinModel.isFavorite) painterResource(id = R.drawable.baseline_favorite_24) else painterResource(
-                    id = R.drawable.baseline_favorite_border_24
-                ),
+                painter = painterResource(id = if (coinModel.isFavorite) R.drawable.baseline_favorite_24 else R.drawable.baseline_favorite_border_24),
                 contentDescription = "image",
                 modifier = Modifier
                     .padding(8.dp)
