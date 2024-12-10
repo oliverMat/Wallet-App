@@ -54,7 +54,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -85,12 +87,21 @@ fun MoneyView(
 
     LifeCycle(viewModel)
 
-    when (uiState.connectionState) {
-        ConnectionStatus.Success -> SuccessScreen(uiState, navController, viewModel)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 5.dp)
+    ) {
+        when (uiState.connectionState) {
+            ConnectionStatus.Success -> SuccessScreen(uiState, navController, viewModel)
 
-        ConnectionStatus.Loading -> LoadingScreen()
+            ConnectionStatus.Loading -> LoadingScreen()
 
-        ConnectionStatus.Error -> ErrorScreen(uiState, viewModel)
+            ConnectionStatus.Error -> ErrorScreen(uiState, viewModel)
+        }
     }
 }
 
@@ -113,66 +124,48 @@ private fun SuccessScreen(
     navController: NavHostController,
     viewModel: MoneyViewModel
 ) {
-    PrincipalColumn {
-        TitleText(stringResource(R.string.money_home_current_quote))
-        Price(uiState.price)
-        Spacer(modifier = Modifier.size(15.dp))
-        TitleText(stringResource(R.string.money_home_variation_of_day))
-        MaxMin(uiState.price)
-        Spacer(modifier = Modifier.size(15.dp))
-        TitleText(stringResource(R.string.money_home_coin))
-        NameMoney(uiState)
-        Spacer(modifier = Modifier.size(20.dp))
-        Chart(uiState.chart, navController)
-        Spacer(modifier = Modifier.size(35.dp))
-        PartialBottomSheet(uiState, viewModel, navController)
-    }
+    TitleText(stringResource(R.string.money_home_current_quote))
+    Price(uiState.price)
+    Spacer(modifier = Modifier.size(15.dp))
+    TitleText(stringResource(R.string.money_home_variation_of_day))
+    MaxMin(uiState.price)
+    Spacer(modifier = Modifier.size(15.dp))
+    TitleText(stringResource(R.string.money_home_coin))
+    NameMoney(uiState)
+    Spacer(modifier = Modifier.size(20.dp))
+    Chart(uiState.chart, navController)
+    Spacer(modifier = Modifier.size(35.dp))
+    PartialBottomSheet(uiState, viewModel, navController)
 }
 
 @Composable
 private fun LoadingScreen() {
-    PrincipalColumn {
-        ShimmerEffect(
-            modifier = Modifier
-                .height(221.dp)
-                .fillMaxWidth()
-                .padding(8.dp)
-                .background(
-                    MaterialTheme.colorScheme.tertiary,
-                    RoundedCornerShape(12.dp)
-                )
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        ShimmerEffect(
-            modifier = Modifier
-                .height(270.dp)
-                .fillMaxWidth()
-                .padding(8.dp)
-                .background(
-                    MaterialTheme.colorScheme.tertiary,
-                    RoundedCornerShape(12.dp)
-                )
-        )
-    }
+    ShimmerEffect(
+        modifier = Modifier
+            .height(221.dp)
+            .fillMaxWidth()
+            .padding(8.dp)
+            .background(
+                MaterialTheme.colorScheme.tertiary,
+                RoundedCornerShape(12.dp)
+            )
+    )
+    Spacer(modifier = Modifier.size(10.dp))
+    ShimmerEffect(
+        modifier = Modifier
+            .height(270.dp)
+            .fillMaxWidth()
+            .padding(8.dp)
+            .background(
+                MaterialTheme.colorScheme.tertiary,
+                RoundedCornerShape(12.dp)
+            )
+    )
 }
 
 @Composable
 private fun ErrorScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
     ErrorScreenTemplate(uiState, viewModel)
-}
-
-@Composable
-private fun PrincipalColumn(item: @Composable (modifier: Modifier) -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 5.dp)
-    ) {
-        item(Modifier.weight(1f))
-    }
 }
 
 @Composable
@@ -516,6 +509,6 @@ private fun negativeValueColor(value: String?): Color {
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        LoadingScreen()
+        MoneyView(rememberNavController(), viewModel())
     }
 }

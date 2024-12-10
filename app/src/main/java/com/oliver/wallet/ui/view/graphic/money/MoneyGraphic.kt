@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -62,77 +63,68 @@ import com.oliver.wallet.util.DateValueFormatter
 fun MoneyGraphicView(viewModel: MoneyViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
-    when (uiState.connectionState) {
-        ConnectionStatus.Success -> SuccessScreen(uiState, viewModel)
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .horizontalScroll(rememberScrollState())
+    ) {
+        when (uiState.connectionState) {
+            ConnectionStatus.Success -> SuccessScreen(uiState, viewModel, Modifier.weight(1f))
 
-        ConnectionStatus.Loading -> LoadingScreen(uiState)
+            ConnectionStatus.Loading -> LoadingScreen(uiState, Modifier.weight(1f))
 
-        ConnectionStatus.Error -> ErrorScreen(uiState, viewModel)
+            ConnectionStatus.Error -> ErrorScreen(uiState, viewModel)
+        }
     }
 }
 
 @Composable
 private fun SuccessScreen(
     uiState: MoneyUiState,
-    viewModel: MoneyViewModel
+    viewModel: MoneyViewModel,
+    modifier: Modifier
 ) {
-    Spacer(modifier = Modifier.size(10.dp))
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .horizontalScroll(rememberScrollState())
+    Chart(
+        uiState.chart,
+        modifier
+    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(end = 10.dp)
     ) {
-        Chart(
-            uiState.chart,
-            Modifier.weight(1f)
-        )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(end = 10.dp)
-        ) {
-            DropDown(viewModel, uiState.dailyChart)
-            Spacer(modifier = Modifier.size(10.dp))
-            Dashboard(uiState)
-        }
+        DropDown(viewModel, uiState.dailyChart)
+        Spacer(modifier = Modifier.size(10.dp))
+        Dashboard(uiState)
     }
 }
 
 @Composable
-private fun LoadingScreen(uiState: MoneyUiState) {
-    Spacer(modifier = Modifier.size(8.dp))
-    Row(
-        modifier = Modifier
+private fun LoadingScreen(uiState: MoneyUiState, modifier: Modifier) {
+    ShimmerEffect(
+        modifier = modifier
+            .padding(10.dp)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .horizontalScroll(rememberScrollState())
+            .background(
+                MaterialTheme.colorScheme.tertiary,
+                RoundedCornerShape(12.dp)
+            )
+    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(end = 10.dp)
     ) {
+        DropDown(null, uiState.dailyChart)
+        Spacer(modifier = Modifier.size(10.dp))
         ShimmerEffect(
             modifier = Modifier
-                .padding(10.dp)
-                .fillMaxSize()
-                .weight(1f)
+                .height(170.dp)
+                .width(125.dp)
                 .background(
                     MaterialTheme.colorScheme.tertiary,
                     RoundedCornerShape(12.dp)
                 )
         )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(end = 10.dp)
-        ) {
-            DropDown(null, uiState.dailyChart)
-            Spacer(modifier = Modifier.size(10.dp))
-            ShimmerEffect(
-                modifier = Modifier
-                    .height(170.dp)
-                    .width(125.dp)
-                    .background(
-                        MaterialTheme.colorScheme.tertiary,
-                        RoundedCornerShape(12.dp)
-                    )
-            )
-        }
     }
 }
 
@@ -412,6 +404,6 @@ private fun DescriptionChart() {
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        LoadingScreen(MoneyUiState())
+        MoneyGraphicView(viewModel())
     }
 }
