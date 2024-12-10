@@ -80,7 +80,7 @@ private fun SuccessScreen(
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary)
+            .background(MaterialTheme.colorScheme.background)
             .horizontalScroll(rememberScrollState())
     ) {
         Chart(
@@ -104,7 +104,7 @@ private fun LoadingScreen(uiState: MoneyUiState) {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary)
+            .background(MaterialTheme.colorScheme.background)
             .horizontalScroll(rememberScrollState())
     ) {
         ShimmerEffect(
@@ -145,7 +145,7 @@ private fun ErrorScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
 fun Dashboard(uiState: MoneyUiState) {
     ElevatedCard(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiary,
+            containerColor = MaterialTheme.colorScheme.onPrimary,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp
@@ -155,8 +155,9 @@ fun Dashboard(uiState: MoneyUiState) {
             Column {
                 Text(
                     stringResource(R.string.money_graphic_coin),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 12.sp
+                    color = MaterialTheme.colorScheme.onTertiary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.size(5.dp))
                 Text(
@@ -168,8 +169,9 @@ fun Dashboard(uiState: MoneyUiState) {
             Spacer(modifier = Modifier.size(20.dp))
             Column {
                 Text(
-                    "Max:", color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 12.sp
+                    "Max:", color = MaterialTheme.colorScheme.onTertiary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.size(5.dp))
                 Text(
@@ -182,8 +184,9 @@ fun Dashboard(uiState: MoneyUiState) {
             Spacer(modifier = Modifier.size(20.dp))
             Column {
                 Text(
-                    "Min:", color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 12.sp
+                    "Min:", color = MaterialTheme.colorScheme.onTertiary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.size(5.dp))
                 Text(
@@ -219,11 +222,11 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         OutlinedCard(
-            colors = CardDefaults.cardColors(containerColor = if (viewModel != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary),
+            colors = CardDefaults.cardColors(containerColor = if (viewModel != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary),
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 1.dp
+                defaultElevation = 0.dp
             ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.background),
+            border = BorderStroke(1.dp, if (viewModel != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary),
             modifier = Modifier.height(50.dp).width(120.dp)
                 .padding(top = 10.dp)
                 .clickable {
@@ -234,7 +237,7 @@ fun DropDown(viewModel: MoneyViewModel?, dailyChart: String) {
             Spacer(modifier = Modifier.size(12.dp))
             Text(
                 text = stringResource(list[itemPosition.intValue].first),
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.secondary,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
@@ -306,7 +309,7 @@ fun Chart(listItems: List<Entry>?, modifier: Modifier) {
 
     ElevatedCard(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiary,
+            containerColor = MaterialTheme.colorScheme.onPrimary,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp
@@ -391,7 +394,7 @@ private fun DescriptionChart() {
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .size(3.dp)
-                        .background(MaterialTheme.colorScheme.secondary)
+                        .background(MaterialTheme.colorScheme.background)
                         .align(Alignment.Center)
                 )
             }
