@@ -71,7 +71,7 @@ class MoneyViewModel(
     }
 
     fun calculate(value: String) {
-        val valueInsert = if (value.isEmpty()) 1f else value.toFloat()
+        val valueInsert = value.replace(",", ".").toFloat()
 
         _uiState.update { moneyUiState ->
             moneyUiState.copy(

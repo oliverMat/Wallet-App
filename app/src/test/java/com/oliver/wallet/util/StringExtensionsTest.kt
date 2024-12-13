@@ -29,7 +29,7 @@ class StringExtensionsTest {
         val inputNumber = 12345.679f
         val expectedOutput = "12,345.679"
 
-        val formattedNumber = inputNumber.toDecimalFormat()
+        val formattedNumber = inputNumber.toDecimalFormatTreePlaces()
 
         assertEquals(expectedOutput, formattedNumber)
     }
@@ -39,7 +39,7 @@ class StringExtensionsTest {
         val inputNumber = 0f
         val expectedOutput = "0.000"
 
-        val formattedNumber = inputNumber.toDecimalFormat()
+        val formattedNumber = inputNumber.toDecimalFormatTreePlaces()
 
         assertEquals(expectedOutput, formattedNumber)
     }
@@ -49,7 +49,7 @@ class StringExtensionsTest {
         val inputNumber = -12345.679f
         val expectedOutput = "-12,345.679"
 
-        val formattedNumber = inputNumber.toDecimalFormat()
+        val formattedNumber = inputNumber.toDecimalFormatTreePlaces()
 
         assertEquals(expectedOutput, formattedNumber)
     }
@@ -59,7 +59,7 @@ class StringExtensionsTest {
         val inputNumber = 0f
         val expectedOutput = 3
 
-        val formattedNumber = inputNumber.toDecimalFormat()
+        val formattedNumber = inputNumber.toDecimalFormatTreePlaces()
 
         val places = formattedNumber.indexOf(".")
 

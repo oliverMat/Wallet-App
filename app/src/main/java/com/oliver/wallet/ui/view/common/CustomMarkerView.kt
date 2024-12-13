@@ -8,7 +8,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 import com.oliver.wallet.R
 import com.oliver.wallet.util.DateValueFormatter
-import com.oliver.wallet.util.toDecimalFormat
+import com.oliver.wallet.util.toDecimalFormatTreePlaces
 
 class CustomMarkerView(context: Context) : MarkerView(context, R.layout.marker_view) {
 
@@ -24,7 +24,7 @@ class CustomMarkerView(context: Context) : MarkerView(context, R.layout.marker_v
 
     override fun refreshContent(entry: Entry?, highlight: Highlight?) {
         entry?.let {
-            money.text = list[it.x.toInt()].y.toDecimalFormat()
+            money.text = list[it.x.toInt()].y.toDecimalFormatTreePlaces()
             data.text = DateValueFormatter().getAxisLabel(it.x, null)
         }
         super.refreshContent(entry, highlight)

@@ -16,6 +16,16 @@ fun String.dataFormat(): String {
     }
 }
 
-fun Float.toDecimalFormat(): String {
-    return "%,.3f".format(Locale.getDefault(), this)
+fun Float.toDecimalFormatTreePlaces(): String {
+    return "%,.3f".format(Locale.getDefault(), this).replace(".", ",")
+}
+
+fun Float.toDecimalFormatTwoPlaces(): String {
+    return "%,.2f".format(Locale.getDefault(), this).replace(".", ",")
+}
+
+fun formatCurrencyInput(input: String): String {
+    val numericValue = input.replace("[^\\d]".toRegex(), "").toLongOrNull() ?: 0L
+    val formattedValue = "%.2f".format(numericValue / 100.0)
+    return formattedValue.replace(".", ",")
 }

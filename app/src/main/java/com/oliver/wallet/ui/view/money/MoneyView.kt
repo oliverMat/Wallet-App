@@ -75,7 +75,7 @@ import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.DateValueFormatter
 import com.oliver.wallet.util.TypeMoney
 import com.oliver.wallet.util.WalletScreen
-import com.oliver.wallet.util.toDecimalFormat
+import com.oliver.wallet.util.toDecimalFormatTreePlaces
 import kotlinx.coroutines.launch
 
 @Composable
@@ -196,7 +196,7 @@ private fun Price(price: MoneyModel?) {
             Modifier.size(26.dp)
         )
         Text(
-            text = "${price?.bid?.toFloat()?.toDecimalFormat()}",
+            text = "${price?.bid?.toFloat()?.toDecimalFormatTreePlaces()}",
             fontSize = 26.sp,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.secondary
@@ -223,7 +223,7 @@ private fun MaxMin(price: MoneyModel?) {
             contentDescription = "Custom Money Icon",
         )
         Text(
-            text = "${price?.high?.toFloat()?.toDecimalFormat()}",
+            text = "${price?.high?.toFloat()?.toDecimalFormatTreePlaces()}",
             fontSize = 15.sp,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.secondary
@@ -234,7 +234,7 @@ private fun MaxMin(price: MoneyModel?) {
             contentDescription = "Custom Money Icon",
         )
         Text(
-            text = "${price?.low?.toFloat()?.toDecimalFormat()}",
+            text = "${price?.low?.toFloat()?.toDecimalFormatTreePlaces()}",
             fontSize = 15.sp,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.secondary

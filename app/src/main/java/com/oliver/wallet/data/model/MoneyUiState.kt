@@ -7,21 +7,22 @@ import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.DateValueFormatter
 import com.oliver.wallet.util.TypeMoney
-import com.oliver.wallet.util.toDecimalFormat
+import com.oliver.wallet.util.toDecimalFormatTreePlaces
+import com.oliver.wallet.util.toDecimalFormatTwoPlaces
 
 data class MoneyUiState(
     val connectionState: ConnectionStatus = ConnectionStatus.Loading,
     val typeMoney: TypeMoney = TypeMoney.Dollar,
     val price: MoneyModel? = null,
     val chart: List<Entry>? = null,
-    val calculate: Float = 1f,
+    val calculate: Float = 0f,
     val dailyChart: String = DAILY_STANDARD,
     val listCoin: List<CoinModel>? = null,
     val coin: CoinModel? = null
 ) {
 
-    fun getCalculateResult(): Float {
-        return (calculate * if (price?.bid == null) 1f else price.bid.toFloat())
+    fun getCalculateResult(): String {
+        return (calculate / if (price?.bid == null) 0f else price.bid.toFloat()).toDecimalFormatTwoPlaces()
     }
 
     fun getDateMinChart(): String {
@@ -29,7 +30,7 @@ data class MoneyUiState(
     }
 
     fun getMinYDecimalChart(): String? {
-        return chart?.minByOrNull { it.y }?.y?.toDecimalFormat()
+        return chart?.minByOrNull { it.y }?.y?.toDecimalFormatTreePlaces()
     }
 
     fun getDateMaxChart(): String {
@@ -37,6 +38,6 @@ data class MoneyUiState(
     }
 
     fun getMaxYDecimalChart(): String? {
-        return chart?.maxByOrNull { it.y }?.y?.toDecimalFormat()
+        return chart?.maxByOrNull { it.y }?.y?.toDecimalFormatTreePlaces()
     }
 }
