@@ -3,6 +3,7 @@ package com.oliver.wallet.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.mikephil.charting.data.Entry
+import com.oliver.wallet.data.model.CalculatorModel
 import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.data.network.MoneyRepository
 import com.oliver.wallet.data.network.ResultWrapper
@@ -71,11 +72,11 @@ class MoneyViewModel(
     }
 
     fun calculate(value: String) {
-        val valueInsert = value.replace(",", ".").toFloat()
+        val newValue = value.replace(",", ".").toFloat()
 
         _uiState.update { moneyUiState ->
             moneyUiState.copy(
-                calculate = valueInsert
+                calculate = CalculatorModel(value = newValue)
             )
         }
     }

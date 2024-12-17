@@ -1,38 +1,35 @@
 package com.oliver.wallet.ui.view.calculator
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Chip
-import androidx.compose.material.ChipDefaults
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Icon
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,263 +37,325 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oliver.wallet.R
-import com.oliver.wallet.data.network.MoneyModel
 import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.ui.theme.WalletTheme
 import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
-import com.oliver.wallet.util.TypeMoney
-import com.oliver.wallet.util.toDecimalFormat
+import com.oliver.wallet.util.formatCurrencyInput
+import com.oliver.wallet.util.toDecimalFormatTwoPlaces
 
 @Composable
 fun CalculatorView(viewModel: MoneyViewModel) {
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.tertiary)
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState())
     ) {
         when (uiState.connectionState) {
-            ConnectionStatus.Success -> {
-                Spacer(modifier = Modifier.size(50.dp))
-                BoxResult(uiState.getCalculateResult())
-                Spacer(modifier = Modifier.size(20.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.equal_icon),
-                    contentDescription = null,
-                    Modifier.size(30.dp)
-                )
-                Spacer(modifier = Modifier.size(20.dp))
-                BoxCurrentPrice(uiState.price)
-                Spacer(modifier = Modifier.size(20.dp))
-                Icon(
-                    Icons.Default.Clear,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(30.dp),
-                    contentDescription = null,
-                )
-            }
+            ConnectionStatus.Success -> SuccessScreen(uiState, viewModel, Modifier.weight(1f))
 
-            ConnectionStatus.Loading -> {
-                Spacer(modifier = Modifier.size(50.dp))
-                ShimmerEffect(
-                    modifier = Modifier
-                        .width(150.dp)
-                        .height(71.dp)
-                        .background(
-                            MaterialTheme.colorScheme.tertiary,
-                            RoundedCornerShape(10.dp)
-                        )
-                )
-                Spacer(modifier = Modifier.size(20.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.equal_icon),
-                    contentDescription = null,
-                    Modifier.size(30.dp)
-                )
-                Spacer(modifier = Modifier.size(20.dp))
-                ShimmerEffect(
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(50.dp)
-                        .background(
-                            MaterialTheme.colorScheme.tertiary,
-                            RoundedCornerShape(10.dp)
-                        )
-                )
-                Spacer(modifier = Modifier.size(20.dp))
-                Icon(
-                    Icons.Default.Clear,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(30.dp),
-                    contentDescription = null,
-                )
-            }
+            ConnectionStatus.Loading -> LoadingScreen()
 
-            ConnectionStatus.Error -> {
-
-            }
-        }
-        Spacer(modifier = Modifier.size(20.dp))
-        SimpleOutlinedTextFieldSample(viewModel)
-        SingleSelectChipList(viewModel, uiState)
-    }
-}
-
-@Composable
-fun BoxResult(calculate: Float?) {
-    Box(
-        modifier = Modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(10.dp)
-            )
-    ) {
-        Column(
-            modifier = Modifier.padding(vertical = 15.dp, horizontal = 30.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "${calculate?.toDecimalFormat()}",
-                fontSize = 35.sp,
-                color = MaterialTheme.colorScheme.secondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.widthIn(max = 200.dp)
-            )
+            ConnectionStatus.Error -> ErrorScreen()
         }
     }
 }
 
 @Composable
-fun BoxCurrentPrice(price: MoneyModel?) {
-    Box(
-        modifier = Modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(10.dp)
-            )
-    ) {
-        Row(
-            modifier = Modifier.padding(vertical = 15.dp, horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "${price?.bid?.toFloat()?.toDecimalFormat()}",
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.secondary
-            )
-            Spacer(modifier = Modifier.size(5.dp))
-            Text(
-                text = "${price?.code}",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        }
+private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modifier: Modifier) {
+    var checked by remember { mutableStateOf(true) }
+
+    Spacer(modifier = Modifier.size(40.dp))
+    SimpleOutlinedTextFieldSample(viewModel, modifier)
+    SwitchWithLabel(checked) {
+        checked = it
     }
-}
-
-@Composable
-fun SimpleOutlinedTextFieldSample(viewModel: MoneyViewModel) {
-    var text by remember { mutableStateOf("") }
-
-    OutlinedTextField(
-        value = text,
-        textStyle = TextStyle(color = MaterialTheme.colorScheme.secondary, fontSize = 16.sp),
-        label = { Text("Valor a converter", color = MaterialTheme.colorScheme.secondary) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = MaterialTheme.colorScheme.secondary
-        ),
-        onValueChange = { newText ->
-            text = filterInputText(newText)
-            viewModel.calculate(text)
-        },
-        leadingIcon = {
-            Image(
-                painter = painterResource(id = R.drawable.dialpad_icon),
-                contentDescription = null,
-            )
-        },
-        trailingIcon = {
-            Icon(
-                Icons.Default.Refresh,
-                tint = MaterialTheme.colorScheme.secondary,
-                contentDescription = null,
-                modifier = Modifier
-                    .clickable {
-                        text = ""
-                        viewModel.calculate(text)
-                    }
-            )
-        }
-    )
-}
-
-private fun filterInputText(input: String): String {
-    if (input.length == 1 && (input == "." || input == ",")) {
-        return ""
-    }
-    val sanitizedInput = input.replace(",", "")
-
-    val firstDotIndex = sanitizedInput.indexOf('.')
-
-    return if (firstDotIndex != -1) {
-        val beforeDot = sanitizedInput.substring(0, firstDotIndex + 1)
-        val afterDot = sanitizedInput.substring(firstDotIndex + 1).replace(".", "")
-        beforeDot + afterDot
-    } else {
-        sanitizedInput
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun SingleSelectChipList(viewModel: MoneyViewModel, uiState: MoneyUiState) {
-    val label = stringArrayResource(R.array.list_money_label).toList()
-
-    var selected by remember {
-        mutableStateOf<String?>(
-            label[when (uiState.typeMoney) {
-                TypeMoney.Dollar -> 0
-                TypeMoney.Euro -> 1
-            }]
-        )
-    }
-
-    Row(
-        modifier = Modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(top = 10.dp)
-    ) {
-        label.forEachIndexed { index, it ->
-            val isSelected = it == selected
-            Chip(
-                border = BorderStroke(
-                    1.dp,
-                    if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary,
-                ),
-                colors = ChipDefaults.chipColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
-                modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
-                onClick = {
-                    selected = if (isSelected) selected else it
-
-//                    viewModel.selectMoneySymbol(
-//                        when (index) {
-//                            0 -> TypeMoney.Dollar
-//                            else -> TypeMoney.Euro
-//                        }
-//                    )
-                },
+    Spacer(modifier = Modifier.size(10.dp))
+    AnimatedVisibility(visible = checked) {
+        Column(horizontalAlignment = Alignment.Start, modifier = modifier.fillMaxSize()) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 19.dp),
-                    text = it,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.secondary
+                    "Cotação",
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+                )
+                Text(
+                    "1 ${uiState.price?.code} = ${
+                        uiState.price?.bid?.toFloat()?.toDecimalFormatTwoPlaces()
+                    } BRL",
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ImageIcon(painterResource(R.drawable.add_24))
+                    Text(
+                        "IOF 0,38% ",
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+                Text(
+                    uiState.getIof().toDecimalFormatTwoPlaces(),
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 5.dp, bottom = 10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ImageIcon(painterResource(R.drawable.add_24))
+                    Text(
+                        "Spread 2,50%",
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+                Text(
+                    uiState.getTaxa().toDecimalFormatTwoPlaces(),
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+                )
+            }
+            Divider(Modifier.padding(horizontal = 20.dp, vertical = 5.dp))
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ImageIcon(painterResource(R.drawable.equal_24dp))
+                    Text(
+                        "VET",
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+                Text("R$ ${uiState.getResultsWithAllTax().toDecimalFormatTwoPlaces()}",
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
                 )
             }
         }
     }
+    Spacer(modifier = Modifier.size(20.dp))
+    ResultCalculate(uiState)
 }
 
+@Composable
+private fun LoadingScreen() {
+    Spacer(modifier = Modifier.size(50.dp))
+    ShimmerEffect(
+        modifier = Modifier
+            .width(150.dp)
+            .height(71.dp)
+            .background(
+                MaterialTheme.colorScheme.tertiary,
+                RoundedCornerShape(10.dp)
+            )
+    )
+    Spacer(modifier = Modifier.size(20.dp))
+    Spacer(modifier = Modifier.size(20.dp))
+    ShimmerEffect(
+        modifier = Modifier
+            .width(120.dp)
+            .height(50.dp)
+            .background(
+                MaterialTheme.colorScheme.tertiary,
+                RoundedCornerShape(10.dp)
+            )
+    )
+    Spacer(modifier = Modifier.size(20.dp))
+}
+
+@Composable
+private fun ErrorScreen() {
+
+}
+
+@Composable
+private fun SimpleOutlinedTextFieldSample(viewModel: MoneyViewModel, modifier: Modifier) {
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+
+    var textFieldValue by remember { mutableStateOf(TextFieldValue("0,00")) }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboardController?.show()
+
+        textFieldValue = textFieldValue.copy(selection = TextRange(textFieldValue.text.length))
+    }
+
+    Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
+        OutlinedTextField(
+            modifier = Modifier.focusRequester(focusRequester),
+            value = textFieldValue,
+            textStyle = TextStyle(color = MaterialTheme.colorScheme.secondary, fontSize = 25.sp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            shape = MaterialTheme.shapes.medium,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.secondary
+            ),
+            onValueChange = { newValue ->
+                val formattedText = formatCurrencyInput(newValue.text)
+                textFieldValue = newValue.copy(
+                    text = formattedText,
+                    selection = TextRange(formattedText.length)
+                )
+                viewModel.calculate(formattedText)
+            },
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.brasil_flag),
+                    contentDescription = null,
+                )
+            },
+        )
+    }
+}
+
+@Composable
+private fun SwitchWithLabel(state: Boolean, onStateChange: (Boolean) -> Unit) {
+
+    val interactionSource = remember { MutableInteractionSource() }
+    Row(verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.Switch,
+                onClick = {
+                    onStateChange(!state)
+                }
+            )
+    ) {
+        Text(
+            "Taxas",
+            color = MaterialTheme.colorScheme.secondary,
+            fontWeight = FontWeight.Bold,
+            fontSize = 15.sp
+        )
+        Switch(
+            checked = state,
+            onCheckedChange = {
+                onStateChange(it)
+            }
+        )
+    }
+}
+
+@Composable
+private fun ImageIcon(image: Painter) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.onPrimary)
+    ) {
+        Image(
+            painter = image,
+            contentDescription = "image",
+            modifier = Modifier
+                .size(18.dp)
+                .align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+private fun ResultCalculate(uiState: MoneyUiState) {
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.tertiary)
+            .fillMaxSize()
+    ) {
+        Spacer(modifier = Modifier.size(10.dp))
+        Text(
+            "Voce vai receber",
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .imePadding()
+        ) {
+            Image(
+                painter = painterResource(uiState.coin?.image!!),
+                contentDescription = "image",
+                modifier = Modifier
+                    .size(27.dp)
+            )
+            Text(
+                uiState.getCalculateResult(),
+                color = MaterialTheme.colorScheme.secondary,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(10.dp)
+            )
+        }
+        Spacer(modifier = Modifier.size(10.dp))
+    }
+}
 
 @Preview(showBackground = true)
 @Composable

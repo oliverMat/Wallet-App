@@ -15,14 +15,32 @@ data class MoneyUiState(
     val typeMoney: TypeMoney = TypeMoney.Dollar,
     val price: MoneyModel? = null,
     val chart: List<Entry>? = null,
-    val calculate: Float = 0f,
+    val calculate: CalculatorModel = CalculatorModel(),
     val dailyChart: String = DAILY_STANDARD,
     val listCoin: List<CoinModel>? = null,
     val coin: CoinModel? = null
 ) {
 
+    private fun getPrice(): Float {
+        return (price?.bid ?: "0").toFloat()
+    }
+
     fun getCalculateResult(): String {
-        return (calculate / if (price?.bid == null) 0f else price.bid.toFloat()).toDecimalFormatTwoPlaces()
+        val value = getPrice() + getIof() + getTaxa()
+
+        return (calculate.value / value).toDecimalFormatTwoPlaces()
+    }
+
+    fun getIof(): Float {
+        return calculate.iof.times(getPrice())
+    }
+
+    fun getTaxa(): Float {
+        return calculate.taxa.times(getPrice())
+    }
+
+    fun getResultsWithAllTax(): Float {
+        return (getPrice() + getIof() + getTaxa())
     }
 
     fun getDateMinChart(): String {
