@@ -1,5 +1,6 @@
 package com.oliver.wallet.util
 
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -28,4 +29,11 @@ fun formatCurrencyInput(input: String): String {
     val numericValue = input.replace("[^\\d]".toRegex(), "").toLongOrNull() ?: 0L
     val formattedValue = "%.2f".format(numericValue / 100.0)
     return formattedValue.replace(".", ",")
+}
+
+fun Float.formatPercentage(): String {
+    return NumberFormat.getPercentInstance(Locale.getDefault()).apply {
+        minimumFractionDigits = 2
+        maximumFractionDigits = 2
+    }.format(this)
 }

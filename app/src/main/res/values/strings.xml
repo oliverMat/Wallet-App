@@ -41,4 +41,8 @@
     <string name="money_graphic_1_year">1 Ano</string>
     <string name="money_graphic_description_chart">*Deslize pelo grafico para ver mais</string>
     <string name="money_graphic_max_min">Max/Min do periodo</string>
+
+    <!-- calculator label -->
+    <string name="calculator_edit_tax">Editar Taxas</string>
+    <string name="calculator_save">Salvar</string>
 </resources>

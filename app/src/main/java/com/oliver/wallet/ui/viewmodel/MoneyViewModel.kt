@@ -76,7 +76,35 @@ class MoneyViewModel(
 
         _uiState.update { moneyUiState ->
             moneyUiState.copy(
-                calculate = CalculatorModel(value = newValue)
+                calculate = CalculatorModel(
+                    value = newValue,
+                    iof = _uiState.value.calculate.iof,
+                    taxa = _uiState.value.calculate.taxa
+                )
+            )
+        }
+    }
+
+    fun updateIof(value: Float) {
+        _uiState.update { moneyUiState ->
+            moneyUiState.copy(
+                calculate = CalculatorModel(
+                    value = _uiState.value.calculate.value,
+                    iof = value,
+                    taxa = _uiState.value.calculate.taxa
+                )
+            )
+        }
+    }
+
+    fun updateTaxa(value: Float) {
+        _uiState.update { moneyUiState ->
+            moneyUiState.copy(
+                calculate = CalculatorModel(
+                    value = _uiState.value.calculate.value,
+                    iof = _uiState.value.calculate.iof,
+                    taxa = value
+                )
             )
         }
     }
