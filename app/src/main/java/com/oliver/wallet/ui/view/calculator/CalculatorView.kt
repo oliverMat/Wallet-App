@@ -101,22 +101,22 @@ fun CalculatorView(viewModel: MoneyViewModel) {
 private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modifier: Modifier) {
     var checked by remember { mutableStateOf(true) }
 
-    Spacer(modifier = Modifier.size(40.dp))
     SimpleOutlinedTextFieldSample(viewModel, modifier)
+    Template(
+        "Cotação",
+        "1 ${uiState.price?.code} = ${
+            uiState.price?.bid?.toFloat()?.toDecimalFormatTwoPlaces()
+        } BRL"
+    ) { Spacer(Modifier.size(15.dp)) }
     SwitchWithLabel(checked) {
         checked = it
+        viewModel.isEnableTax(checked)
     }
     AnimatedVisibility(visible = checked) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxSize()
         ) {
-            Template(
-                "Cotação",
-                "1 ${uiState.price?.code} = ${
-                    uiState.price?.bid?.toFloat()?.toDecimalFormatTwoPlaces()
-                } BRL"
-            ) { }
             Template(
                 "IOF ${uiState.calculate.iof.formatPercentage()}",
                 "R$ ${uiState.getIof().toDecimalFormatTwoPlaces()}"
@@ -130,11 +130,10 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modi
                 "Total",
                 "R$ ${uiState.getResultsWithAllTax().toDecimalFormatTwoPlaces()}"
             ) { ImageIcon(painterResource(R.drawable.equal_24dp)) }
-            PartialBottomSheet(uiState, viewModel)
         }
     }
     Spacer(modifier = Modifier.size(10.dp))
-    ResultCalculate(uiState)
+    ResultCalculate(uiState, viewModel, checked)
 }
 
 @Composable
@@ -251,11 +250,11 @@ private fun Template(title: String, value: String, imageIcon: @Composable () -> 
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+            .padding(top = 10.dp, bottom = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             imageIcon()
-            Spacer(Modifier.size(8.dp))
+            Spacer(Modifier.size(5.dp))
             Text(
                 title,
                 color = MaterialTheme.colorScheme.secondary,
@@ -277,6 +276,7 @@ private fun Template(title: String, value: String, imageIcon: @Composable () -> 
 private fun ImageIcon(image: Painter) {
     Box(
         modifier = Modifier
+            .padding(start = 20.dp, end = 5.dp)
             .size(32.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.onPrimary)
@@ -318,13 +318,12 @@ private fun PartialBottomSheet(
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ButtonWithLabel(
             R.string.calculator_edit_tax,
             MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.background
+            MaterialTheme.colorScheme.tertiary
         ) {
             showBottomSheet = true
         }
@@ -396,36 +395,43 @@ private fun BottomSheetTemplate(title: String, value: Float,result: String, onUp
 }
 
 @Composable
-private fun ResultCalculate(uiState: MoneyUiState) {
+private fun ResultCalculate(uiState: MoneyUiState, viewModel: MoneyViewModel, checked: Boolean) {
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.tertiary)
             .fillMaxSize()
     ) {
         Spacer(modifier = Modifier.size(10.dp))
-        Text(
-            "Voce vai receber",
-            color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(horizontal = 20.dp)
-                .imePadding()
-        ) {
-            Image(
-                painter = painterResource(uiState.coin?.image!!),
-                contentDescription = "image",
-                modifier = Modifier
-                    .size(27.dp)
-            )
-            Text(
-                uiState.getCalculateResult(),
-                color = MaterialTheme.colorScheme.secondary,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(10.dp)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Voce vai receber",
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .imePadding()
+                ) {
+                    Image(
+                        painter = painterResource(uiState.coin?.image!!),
+                        contentDescription = "image",
+                        modifier = Modifier
+                            .size(27.dp)
+                    )
+                    Text(
+                        uiState.getCalculateResult(),
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+            AnimatedVisibility(visible = checked) {
+                PartialBottomSheet(uiState, viewModel)
+            }
         }
         Spacer(modifier = Modifier.size(10.dp))
     }

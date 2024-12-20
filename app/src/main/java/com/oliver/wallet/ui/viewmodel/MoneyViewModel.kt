@@ -85,6 +85,24 @@ class MoneyViewModel(
         }
     }
 
+    fun isEnableTax(isEnable: Boolean) {
+        _uiState.update { moneyUiState ->
+            moneyUiState.copy(
+                calculate = when (isEnable) {
+                    true -> CalculatorModel(
+                        value = _uiState.value.calculate.value,
+                    )
+
+                    false -> CalculatorModel(
+                        value = _uiState.value.calculate.value,
+                        iof = 0f,
+                        taxa = 0f
+                    )
+                }
+            )
+        }
+    }
+
     fun updateIof(value: Float) {
         _uiState.update { moneyUiState ->
             moneyUiState.copy(
