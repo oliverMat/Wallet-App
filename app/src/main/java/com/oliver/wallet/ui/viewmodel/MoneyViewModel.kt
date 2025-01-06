@@ -85,7 +85,7 @@ class MoneyViewModel(
         }
     }
 
-    fun isEnableTax(isEnable: Boolean) {
+    fun enableTax(isEnable: Boolean) {
         _uiState.update { moneyUiState ->
             moneyUiState.copy(
                 calculate = when (isEnable) {

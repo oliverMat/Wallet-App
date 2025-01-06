@@ -67,6 +67,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oliver.wallet.R
 import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.ui.theme.WalletTheme
+import com.oliver.wallet.ui.view.common.ErrorScreenTemplate
 import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
 import com.oliver.wallet.util.ConnectionStatus
@@ -81,7 +82,6 @@ fun CalculatorView(viewModel: MoneyViewModel) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
@@ -92,7 +92,7 @@ fun CalculatorView(viewModel: MoneyViewModel) {
 
             ConnectionStatus.Loading -> LoadingScreen()
 
-            ConnectionStatus.Error -> ErrorScreen()
+            ConnectionStatus.Error -> ErrorScreen(uiState, viewModel)
         }
     }
 }
@@ -102,15 +102,9 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modi
     var checked by remember { mutableStateOf(true) }
 
     SimpleOutlinedTextFieldSample(viewModel, modifier)
-    Template(
-        "Cotação",
-        "1 ${uiState.price?.code} = ${
-            uiState.price?.bid?.toFloat()?.toDecimalFormatTwoPlaces()
-        } BRL"
-    ) { Spacer(Modifier.size(15.dp)) }
     SwitchWithLabel(checked) {
         checked = it
-        viewModel.isEnableTax(checked)
+        viewModel.enableTax(checked)
     }
     AnimatedVisibility(visible = checked) {
         Column(
@@ -125,13 +119,20 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modi
                 "Spread ${uiState.calculate.taxa.formatPercentage()}",
                 "R$ ${uiState.getTaxa().toDecimalFormatTwoPlaces()}"
             ) { ImageIcon(painterResource(R.drawable.add_24)) }
-            Divider(Modifier.padding(horizontal = 20.dp, vertical = 5.dp))
-            Template(
-                "Total",
-                "R$ ${uiState.getResultsWithAllTax().toDecimalFormatTwoPlaces()}"
-            ) { ImageIcon(painterResource(R.drawable.equal_24dp)) }
+
         }
     }
+    Divider(Modifier.padding(horizontal = 20.dp, vertical = 5.dp))
+    Template(
+        "Cotação",
+        "1 ${uiState.price?.code} = ${
+            uiState.price?.bid?.toFloat()?.toDecimalFormatTwoPlaces()
+        } BRL"
+    ) { ImageIcon(painterResource(R.drawable.money_icon_black)) }
+    Template(
+        "Total",
+        "R$ ${uiState.getResultsWithAllTax().toDecimalFormatTwoPlaces()}"
+    ) { ImageIcon(painterResource(R.drawable.equal_24dp)) }
     Spacer(modifier = Modifier.size(10.dp))
     ResultCalculate(uiState, viewModel, checked)
 }
@@ -140,20 +141,19 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modi
 private fun LoadingScreen() {
     Spacer(modifier = Modifier.size(50.dp))
     ShimmerEffect(
-        modifier = Modifier
-            .width(150.dp)
-            .height(71.dp)
+        modifier = Modifier.padding(10.dp)
+            .fillMaxWidth()
+            .height(250.dp)
             .background(
                 MaterialTheme.colorScheme.tertiary,
                 RoundedCornerShape(10.dp)
             )
     )
     Spacer(modifier = Modifier.size(20.dp))
-    Spacer(modifier = Modifier.size(20.dp))
     ShimmerEffect(
-        modifier = Modifier
-            .width(120.dp)
-            .height(50.dp)
+        modifier = Modifier.padding(10.dp)
+            .fillMaxWidth()
+            .height(250.dp)
             .background(
                 MaterialTheme.colorScheme.tertiary,
                 RoundedCornerShape(10.dp)
@@ -163,8 +163,8 @@ private fun LoadingScreen() {
 }
 
 @Composable
-private fun ErrorScreen() {
-
+private fun ErrorScreen(uiState: MoneyUiState, viewModel: MoneyViewModel) {
+    ErrorScreenTemplate(uiState, viewModel)
 }
 
 @Composable
