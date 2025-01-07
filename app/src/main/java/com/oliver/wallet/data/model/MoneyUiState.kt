@@ -2,7 +2,7 @@ package com.oliver.wallet.data.model
 
 import com.github.mikephil.charting.data.Entry
 import com.oliver.wallet.data.network.MoneyModel
-import com.oliver.wallet.data.room.CoinModel
+import com.oliver.wallet.data.room.model.CoinModel
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.DateValueFormatter

@@ -6,15 +6,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.oliver.wallet.R
+import com.oliver.wallet.data.room.dao.CoinDao
+import com.oliver.wallet.data.room.dao.TaxDao
+import com.oliver.wallet.data.room.model.CoinModel
+import com.oliver.wallet.data.room.model.TaxModel
 import com.oliver.wallet.util.TypeMoney
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [CoinModel::class], version = 1, exportSchema = false)
+@Database(entities = [CoinModel::class, TaxModel::class], version = 1, exportSchema = false)
 abstract class CoinDatabase : RoomDatabase() {
 
     abstract fun coinDao(): CoinDao
+
+    abstract fun taxDao(): TaxDao
 
     companion object {
         @Volatile
@@ -35,25 +41,38 @@ abstract class CoinDatabase : RoomDatabase() {
                 // valores no banco de dados ao criá-lo
                 Instance?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        val dao = database.coinDao()
-                        dao.insert(
-                            CoinModel(
-                                label = context.getString(R.string.dollar_name),
-                                image = R.drawable.united_stats_flag,
-                                typeMoney = TypeMoney.Dollar,
-                                isFavorite = true
-                            )
-                        )
-                        dao.insert(
-                            CoinModel(
-                                label = context.getString(R.string.euro_name),
-                                image = R.drawable.europe_flag,
-                                typeMoney = TypeMoney.Euro,
-                                isFavorite = false
-                            )
-                        )
+                        createCoinModel(database.coinDao())
+                        createTaxModel(database.taxDao())
                     }
                 }
+            }
+
+            private suspend fun createCoinModel(database: CoinDao) {
+                database.insert(
+                    CoinModel(
+                        label = context.getString(R.string.dollar_name),
+                        image = R.drawable.united_stats_flag,
+                        typeMoney = TypeMoney.Dollar,
+                        isFavorite = true
+                    )
+                )
+                database.insert(
+                    CoinModel(
+                        label = context.getString(R.string.euro_name),
+                        image = R.drawable.europe_flag,
+                        typeMoney = TypeMoney.Euro,
+                        isFavorite = false
+                    )
+                )
+            }
+
+            private suspend fun createTaxModel(taxDao: TaxDao) {
+                taxDao.insert(
+                    TaxModel(
+                        iof = 0.0038f,
+                        taxa = 0.025f
+                    )
+                )
             }
         }
     }

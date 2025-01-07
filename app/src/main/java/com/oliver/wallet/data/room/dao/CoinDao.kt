@@ -1,10 +1,11 @@
-package com.oliver.wallet.data.room
+package com.oliver.wallet.data.room.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.oliver.wallet.data.room.model.CoinModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao

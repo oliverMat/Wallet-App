@@ -13,7 +13,8 @@ object AppViewModelProvider {
         initializer {
             MoneyViewModel(
                 application().container.moneyRepository,
-                application().container.coinRepository
+                application().container.coinRepository,
+                application().container.taxRepository,
             )
         }
     }

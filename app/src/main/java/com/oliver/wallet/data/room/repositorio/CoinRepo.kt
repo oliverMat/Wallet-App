@@ -1,5 +1,8 @@
-package com.oliver.wallet.data.room
+package com.oliver.wallet.data.room.repositorio
 
+import com.oliver.wallet.data.room.repositorio.inter.CoinRepository
+import com.oliver.wallet.data.room.dao.CoinDao
+import com.oliver.wallet.data.room.model.CoinModel
 import kotlinx.coroutines.flow.Flow
 
 class CoinRepo(private val coinDao: CoinDao) : CoinRepository {

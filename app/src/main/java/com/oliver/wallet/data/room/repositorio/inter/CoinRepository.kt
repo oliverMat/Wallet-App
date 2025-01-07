@@ -1,5 +1,6 @@
-package com.oliver.wallet.data.room
+package com.oliver.wallet.data.room.repositorio.inter
 
+import com.oliver.wallet.data.room.model.CoinModel
 import kotlinx.coroutines.flow.Flow
 
 interface CoinRepository {

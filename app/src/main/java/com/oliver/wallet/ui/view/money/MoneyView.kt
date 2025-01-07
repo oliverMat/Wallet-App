@@ -65,7 +65,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.oliver.wallet.R
 import com.oliver.wallet.data.network.MoneyModel
 import com.oliver.wallet.data.model.MoneyUiState
-import com.oliver.wallet.data.room.CoinModel
+import com.oliver.wallet.data.room.model.CoinModel
 import com.oliver.wallet.ui.theme.WalletTheme
 import com.oliver.wallet.ui.view.common.ComposableLifecycle
 import com.oliver.wallet.ui.view.common.ErrorScreenTemplate
