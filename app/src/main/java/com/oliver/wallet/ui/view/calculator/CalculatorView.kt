@@ -141,7 +141,8 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modi
 private fun LoadingScreen() {
     Spacer(modifier = Modifier.size(50.dp))
     ShimmerEffect(
-        modifier = Modifier.padding(10.dp)
+        modifier = Modifier
+            .padding(10.dp)
             .fillMaxWidth()
             .height(250.dp)
             .background(
@@ -151,7 +152,8 @@ private fun LoadingScreen() {
     )
     Spacer(modifier = Modifier.size(20.dp))
     ShimmerEffect(
-        modifier = Modifier.padding(10.dp)
+        modifier = Modifier
+            .padding(10.dp)
             .fillMaxWidth()
             .height(250.dp)
             .background(
@@ -332,16 +334,28 @@ private fun PartialBottomSheet(
             ModalBottomSheet(
                 containerColor = MaterialTheme.colorScheme.background,
                 sheetState = sheetState,
-                onDismissRequest = { showBottomSheet = false },
-
+                onDismissRequest = {
+                    showBottomSheet = false
+                    viewModel.loadTax()
+                },
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 30.dp)
                 ) {
-                    BottomSheetTemplate("IOF", uiState.calculate.iof, uiState.getIof().toDecimalFormatTwoPlaces()) { value -> viewModel.updateIof(value) }
+                    BottomSheetTemplate(
+                        "IOF",
+                        uiState.calculate.iof,
+                        uiState.getIof().toDecimalFormatTwoPlaces()
+                    ) { value -> viewModel.updateCalculatorModel(iof = value, taxa = null) }
                     Spacer(modifier = Modifier.size(30.dp))
-                    BottomSheetTemplate("Spread", uiState.calculate.taxa, uiState.getTaxa().toDecimalFormatTwoPlaces()) { value -> viewModel.updateTaxa(value) }
+                    BottomSheetTemplate(
+                        "Spread",
+                        uiState.calculate.taxa,
+                        uiState.getTaxa().toDecimalFormatTwoPlaces()
+                    ) { value -> viewModel.updateCalculatorModel(iof = null, taxa = value) }
                     Spacer(modifier = Modifier.size(40.dp))
                     ButtonWithLabel(
                         R.string.calculator_save,
@@ -350,6 +364,7 @@ private fun PartialBottomSheet(
                     ) {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             showBottomSheet = false
+                            viewModel.saveTaxaAndIof()
                         }
                     }
                     Spacer(modifier = Modifier.size(60.dp))
@@ -441,6 +456,10 @@ private fun ResultCalculate(uiState: MoneyUiState, viewModel: MoneyViewModel, ch
 @Composable
 fun GreetingPreview() {
     WalletTheme {
-        CalculatorView(MoneyViewModel(viewModel(), viewModel()))
+        CalculatorView(MoneyViewModel(
+            viewModel(),
+            viewModel(),
+            viewModel()
+        ))
     }
 }

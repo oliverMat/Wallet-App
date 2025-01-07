@@ -17,6 +17,6 @@ interface TaxDao {
     @Update
     suspend fun update(taxModel: TaxModel)
 
-    @Query("SELECT * from tax")
-    fun getAll(): Flow<List<TaxModel>>
+    @Query("SELECT * from tax WHERE id = 1")
+    fun getAll(): Flow<TaxModel>
 }

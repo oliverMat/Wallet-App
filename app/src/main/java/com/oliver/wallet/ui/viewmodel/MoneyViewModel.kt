@@ -7,8 +7,10 @@ import com.oliver.wallet.data.model.CalculatorModel
 import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.data.network.MoneyRepository
 import com.oliver.wallet.data.network.ResultWrapper
-import com.oliver.wallet.data.room.CoinModel
-import com.oliver.wallet.data.room.CoinRepository
+import com.oliver.wallet.data.room.model.CoinModel
+import com.oliver.wallet.data.room.model.TaxModel
+import com.oliver.wallet.data.room.repositorio.inter.CoinRepository
+import com.oliver.wallet.data.room.repositorio.inter.TaxRepository
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.Constants.UPDATE_INTERVAL_2_SEG
@@ -24,11 +26,18 @@ import kotlinx.coroutines.launch
 
 class MoneyViewModel(
     private val moneyRepository: MoneyRepository,
-    private val coinRepository: CoinRepository
+    private val coinRepository: CoinRepository,
+    private val taxRepository: TaxRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MoneyUiState())
     val uiState: StateFlow<MoneyUiState> = _uiState.asStateFlow()
+
+    init {
+        loadFavorite()
+        loadListOfCoins()
+        loadTax()
+    }
 
 
     fun setFavoriteCoin() {
@@ -86,51 +95,66 @@ class MoneyViewModel(
     }
 
     fun enableTax(isEnable: Boolean) {
-        _uiState.update { moneyUiState ->
-            moneyUiState.copy(
-                calculate = when (isEnable) {
-                    true -> CalculatorModel(
-                        value = _uiState.value.calculate.value,
-                    )
+        viewModelScope.launch {
+            taxRepository.getAllTaxStream().collect {
+                _uiState.update { moneyUiState ->
+                    moneyUiState.copy(
+                        calculate = when (isEnable) {
+                            true -> CalculatorModel(
+                                value = _uiState.value.calculate.value,
+                                iof = it.iof,
+                                taxa = it.taxa
+                            )
 
-                    false -> CalculatorModel(
-                        value = _uiState.value.calculate.value,
-                        iof = 0f,
-                        taxa = 0f
+                            false -> CalculatorModel(
+                                value = _uiState.value.calculate.value,
+                                iof = 0f,
+                                taxa = 0f
+                            )
+                        }
                     )
                 }
-            )
+            }
         }
     }
 
-    fun updateIof(value: Float) {
+    fun updateCalculatorModel(iof: Float?, taxa: Float?) {
         _uiState.update { moneyUiState ->
             moneyUiState.copy(
                 calculate = CalculatorModel(
                     value = _uiState.value.calculate.value,
-                    iof = value,
+                    iof = iof ?: _uiState.value.calculate.iof,
+                    taxa = taxa ?: _uiState.value.calculate.taxa
+                )
+            )
+        }
+    }
+
+    fun saveTaxaAndIof() {
+        viewModelScope.launch {
+            taxRepository.update(
+                TaxModel(
+                    id = 1,
+                    iof = _uiState.value.calculate.iof,
                     taxa = _uiState.value.calculate.taxa
                 )
             )
         }
     }
 
-    fun updateTaxa(value: Float) {
-        _uiState.update { moneyUiState ->
-            moneyUiState.copy(
-                calculate = CalculatorModel(
-                    value = _uiState.value.calculate.value,
-                    iof = _uiState.value.calculate.iof,
-                    taxa = value
-                )
-            )
+    fun loadTax() {
+        viewModelScope.launch {
+            taxRepository.getAllTaxStream().collect {
+                _uiState.update { moneyUiState ->
+                    moneyUiState.copy(
+                        calculate = CalculatorModel(
+                            iof = it.iof,
+                            taxa = it.taxa
+                        )
+                    )
+                }
+            }
         }
-    }
-
-
-    init {
-        loadFavorite()
-        loadListOfCoins()
     }
 
     private fun loadFavorite() {

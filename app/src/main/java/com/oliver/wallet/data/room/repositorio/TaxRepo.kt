@@ -9,5 +9,5 @@ class TaxRepo(private val taxDao: TaxDao) : TaxRepository {
 
     override suspend fun update(taxModel: TaxModel) = taxDao.update(taxModel)
 
-    override fun getAllTaxStream(): Flow<List<TaxModel>> = taxDao.getAll()
+    override fun getAllTaxStream(): Flow<TaxModel> = taxDao.getAll()
 }

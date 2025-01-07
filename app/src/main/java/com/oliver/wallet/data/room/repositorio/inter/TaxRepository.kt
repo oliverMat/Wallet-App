@@ -7,5 +7,5 @@ interface TaxRepository {
 
     suspend fun update(taxModel : TaxModel)
 
-    fun getAllTaxStream(): Flow<List<TaxModel>>
+    fun getAllTaxStream(): Flow<TaxModel>
 }
