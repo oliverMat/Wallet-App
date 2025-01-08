@@ -148,6 +148,7 @@ class MoneyViewModel(
                 _uiState.update { moneyUiState ->
                     moneyUiState.copy(
                         calculate = CalculatorModel(
+                            value = _uiState.value.calculate.value,
                             iof = it.iof,
                             taxa = it.taxa
                         )
