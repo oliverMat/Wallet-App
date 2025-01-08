@@ -43,6 +43,14 @@
     <string name="money_graphic_max_min">Max/Min do periodo</string>
 
     <!-- calculator label -->
+    <string name="calculator_taxa">Taxas</string>
+    <string name="calculator_iof">Iof</string>
+    <string name="calculator_spread">Spread</string>
+    <string name="calculator_price">Cotação</string>
+    <string name="calculator_brl">BRL</string>
+    <string name="calculator_all">Total</string>
+    <string name="calculator_code_price">R$</string>
+    <string name="calculator_receiver">Voce vai receber</string>
     <string name="calculator_edit_tax">Editar Taxas</string>
     <string name="calculator_save">Salvar</string>
 </resources>

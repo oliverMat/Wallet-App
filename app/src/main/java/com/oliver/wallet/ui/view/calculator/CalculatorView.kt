@@ -112,26 +112,17 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modi
             modifier = modifier.fillMaxSize()
         ) {
             Template(
-                "IOF ${uiState.calculate.iof.formatPercentage()}",
-                "R$ ${uiState.getIof().toDecimalFormatTwoPlaces()}"
+                "${stringResource(R.string.calculator_iof)} ${uiState.calculate.iof.formatPercentage()}", "${stringResource(R.string.calculator_code_price)} ${uiState.getIof().toDecimalFormatTwoPlaces()}"
             ) { ImageIcon(painterResource(R.drawable.add_24)) }
-            Template(
-                "Spread ${uiState.calculate.taxa.formatPercentage()}",
-                "R$ ${uiState.getTaxa().toDecimalFormatTwoPlaces()}"
+            Template("${stringResource(R.string.calculator_spread)} ${uiState.calculate.taxa.formatPercentage()}", "${stringResource(R.string.calculator_code_price)} ${uiState.getTaxa().toDecimalFormatTwoPlaces()}"
             ) { ImageIcon(painterResource(R.drawable.add_24)) }
 
         }
     }
     Divider(Modifier.padding(horizontal = 20.dp, vertical = 5.dp))
-    Template(
-        "Cotação",
-        "1 ${uiState.price?.code} = ${
-            uiState.price?.bid?.toFloat()?.toDecimalFormatTwoPlaces()
-        } BRL"
+    Template(stringResource(R.string.calculator_price), "1 ${uiState.price?.code} = ${uiState.price?.bid?.toFloat()?.toDecimalFormatTwoPlaces()} ${stringResource(R.string.calculator_brl)}"
     ) { ImageIcon(painterResource(R.drawable.money_icon_black)) }
-    Template(
-        "Total",
-        "R$ ${uiState.getResultsWithAllTax().toDecimalFormatTwoPlaces()}"
+    Template(stringResource(R.string.calculator_all),"${stringResource(R.string.calculator_code_price)} ${uiState.getResultsWithAllTax().toDecimalFormatTwoPlaces()}"
     ) { ImageIcon(painterResource(R.drawable.equal_24dp)) }
     Spacer(modifier = Modifier.size(10.dp))
     ResultCalculate(uiState, viewModel, checked)
@@ -231,7 +222,7 @@ private fun SwitchWithLabel(state: Boolean, onStateChange: (Boolean) -> Unit) {
             )
     ) {
         Text(
-            "Taxas",
+            stringResource(R.string.calculator_taxa),
             color = MaterialTheme.colorScheme.secondary,
             fontWeight = FontWeight.Bold,
             fontSize = 15.sp
@@ -404,7 +395,7 @@ private fun BottomSheetTemplate(title: String, value: Float,result: String, onUp
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.size(20.dp))
-            Text("R$ $result")
+            Text("${stringResource(R.string.calculator_code_price)} $result")
         }
     }
 }
@@ -420,7 +411,7 @@ private fun ResultCalculate(uiState: MoneyUiState, viewModel: MoneyViewModel, ch
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "Voce vai receber",
+                    stringResource(R.string.calculator_receiver),
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
                 )
