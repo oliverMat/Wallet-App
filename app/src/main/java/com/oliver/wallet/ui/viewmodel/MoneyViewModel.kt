@@ -8,9 +8,9 @@ import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.data.network.MoneyRepository
 import com.oliver.wallet.data.network.ResultWrapper
 import com.oliver.wallet.data.room.model.CoinModel
-import com.oliver.wallet.data.room.model.TaxModel
+import com.oliver.wallet.data.room.model.RatesModel
 import com.oliver.wallet.data.room.repositorio.inter.CoinRepository
-import com.oliver.wallet.data.room.repositorio.inter.TaxRepository
+import com.oliver.wallet.data.room.repositorio.inter.RatesRepository
 import com.oliver.wallet.util.ConnectionStatus
 import com.oliver.wallet.util.Constants.DAILY_STANDARD
 import com.oliver.wallet.util.Constants.UPDATE_INTERVAL_2_SEG
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 class MoneyViewModel(
     private val moneyRepository: MoneyRepository,
     private val coinRepository: CoinRepository,
-    private val taxRepository: TaxRepository
+    private val ratesRepository: RatesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MoneyUiState())
@@ -88,7 +88,7 @@ class MoneyViewModel(
                 calculate = CalculatorModel(
                     value = newValue,
                     iof = _uiState.value.calculate.iof,
-                    taxa = _uiState.value.calculate.taxa
+                    spread = _uiState.value.calculate.spread
                 )
             )
         }
@@ -96,20 +96,20 @@ class MoneyViewModel(
 
     fun enableTax(isEnable: Boolean) {
         viewModelScope.launch {
-            taxRepository.getAllTaxStream().collect {
+            ratesRepository.getAllRatesStream().collect {
                 _uiState.update { moneyUiState ->
                     moneyUiState.copy(
                         calculate = when (isEnable) {
                             true -> CalculatorModel(
                                 value = _uiState.value.calculate.value,
                                 iof = it.iof,
-                                taxa = it.taxa
+                                spread = it.spread
                             )
 
                             false -> CalculatorModel(
                                 value = _uiState.value.calculate.value,
                                 iof = 0f,
-                                taxa = 0f
+                                spread = 0f
                             )
                         }
                     )
@@ -118,25 +118,25 @@ class MoneyViewModel(
         }
     }
 
-    fun updateCalculatorModel(iof: Float?, taxa: Float?) {
+    fun updateCalculatorModel(iof: Float?, spread: Float?) {
         _uiState.update { moneyUiState ->
             moneyUiState.copy(
                 calculate = CalculatorModel(
                     value = _uiState.value.calculate.value,
                     iof = iof ?: _uiState.value.calculate.iof,
-                    taxa = taxa ?: _uiState.value.calculate.taxa
+                    spread = spread ?: _uiState.value.calculate.spread
                 )
             )
         }
     }
 
-    fun saveTaxaAndIof() {
+    fun saveSpreadAndIof() {
         viewModelScope.launch {
-            taxRepository.update(
-                TaxModel(
+            ratesRepository.update(
+                RatesModel(
                     id = 1,
                     iof = _uiState.value.calculate.iof,
-                    taxa = _uiState.value.calculate.taxa
+                    spread = _uiState.value.calculate.spread
                 )
             )
         }
@@ -144,13 +144,13 @@ class MoneyViewModel(
 
     fun loadTax() {
         viewModelScope.launch {
-            taxRepository.getAllTaxStream().collect {
+            ratesRepository.getAllRatesStream().collect {
                 _uiState.update { moneyUiState ->
                     moneyUiState.copy(
                         calculate = CalculatorModel(
                             value = _uiState.value.calculate.value,
                             iof = it.iof,
-                            taxa = it.taxa
+                            spread = it.spread
                         )
                     )
                 }

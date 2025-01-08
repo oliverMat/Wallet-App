@@ -36,7 +36,7 @@ data class MoneyUiState(
     }
 
     fun getTaxa(): Float {
-        return calculate.taxa.times(getPrice())
+        return calculate.spread.times(getPrice())
     }
 
     fun getResultsWithAllTax(): Float {

@@ -14,7 +14,7 @@ object AppViewModelProvider {
             MoneyViewModel(
                 application().container.moneyRepository,
                 application().container.coinRepository,
-                application().container.taxRepository,
+                application().container.ratesRepository,
             )
         }
     }

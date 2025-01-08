@@ -7,29 +7,29 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.oliver.wallet.R
 import com.oliver.wallet.data.room.dao.CoinDao
-import com.oliver.wallet.data.room.dao.TaxDao
+import com.oliver.wallet.data.room.dao.RatesDao
 import com.oliver.wallet.data.room.model.CoinModel
-import com.oliver.wallet.data.room.model.TaxModel
+import com.oliver.wallet.data.room.model.RatesModel
 import com.oliver.wallet.util.TypeMoney
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [CoinModel::class, TaxModel::class], version = 1, exportSchema = false)
-abstract class CoinDatabase : RoomDatabase() {
+@Database(entities = [CoinModel::class, RatesModel::class], version = 1, exportSchema = false)
+abstract class RomDatabases : RoomDatabase() {
 
     abstract fun coinDao(): CoinDao
 
-    abstract fun taxDao(): TaxDao
+    abstract fun ratesDao(): RatesDao
 
     companion object {
         @Volatile
-        private var Instance: CoinDatabase? = null
+        private var Instance: RomDatabases? = null
 
-        fun getDatabase(context: Context): CoinDatabase {
+        fun getDatabase(context: Context): RomDatabases {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, CoinDatabase::class.java, "coin_database")
+                Room.databaseBuilder(context, RomDatabases::class.java, "coin_database")
                     .addCallback(DatabaseCallback(context))
                     .build().also { Instance = it }
             }
@@ -42,7 +42,7 @@ abstract class CoinDatabase : RoomDatabase() {
                 Instance?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
                         createCoinModel(database.coinDao())
-                        createTaxModel(database.taxDao())
+                        createTaxModel(database.ratesDao())
                     }
                 }
             }
@@ -66,11 +66,11 @@ abstract class CoinDatabase : RoomDatabase() {
                 )
             }
 
-            private suspend fun createTaxModel(taxDao: TaxDao) {
-                taxDao.insert(
-                    TaxModel(
+            private suspend fun createTaxModel(ratesDao: RatesDao) {
+                ratesDao.insert(
+                    RatesModel(
                         iof = 0.0038f,
-                        taxa = 0.025f
+                        spread = 0.025f
                     )
                 )
             }

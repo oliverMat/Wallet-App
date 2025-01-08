@@ -111,10 +111,9 @@ private fun SuccessScreen(uiState: MoneyUiState, viewModel: MoneyViewModel, modi
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier.fillMaxSize()
         ) {
-            Template(
-                "${stringResource(R.string.calculator_iof)} ${uiState.calculate.iof.formatPercentage()}", "${stringResource(R.string.calculator_code_price)} ${uiState.getIof().toDecimalFormatTwoPlaces()}"
+            Template("${stringResource(R.string.calculator_iof)} ${uiState.calculate.iof.formatPercentage()}", "${stringResource(R.string.calculator_code_price)} ${uiState.getIof().toDecimalFormatTwoPlaces()}"
             ) { ImageIcon(painterResource(R.drawable.add_24)) }
-            Template("${stringResource(R.string.calculator_spread)} ${uiState.calculate.taxa.formatPercentage()}", "${stringResource(R.string.calculator_code_price)} ${uiState.getTaxa().toDecimalFormatTwoPlaces()}"
+            Template("${stringResource(R.string.calculator_spread)} ${uiState.calculate.spread.formatPercentage()}", "${stringResource(R.string.calculator_code_price)} ${uiState.getTaxa().toDecimalFormatTwoPlaces()}"
             ) { ImageIcon(painterResource(R.drawable.add_24)) }
 
         }
@@ -340,13 +339,13 @@ private fun PartialBottomSheet(
                         "IOF",
                         uiState.calculate.iof,
                         uiState.getIof().toDecimalFormatTwoPlaces()
-                    ) { value -> viewModel.updateCalculatorModel(iof = value, taxa = null) }
+                    ) { value -> viewModel.updateCalculatorModel(iof = value, spread = null) }
                     Spacer(modifier = Modifier.size(30.dp))
                     BottomSheetTemplate(
                         "Spread",
-                        uiState.calculate.taxa,
+                        uiState.calculate.spread,
                         uiState.getTaxa().toDecimalFormatTwoPlaces()
-                    ) { value -> viewModel.updateCalculatorModel(iof = null, taxa = value) }
+                    ) { value -> viewModel.updateCalculatorModel(iof = null, spread = value) }
                     Spacer(modifier = Modifier.size(40.dp))
                     ButtonWithLabel(
                         R.string.calculator_save,
@@ -355,7 +354,7 @@ private fun PartialBottomSheet(
                     ) {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             showBottomSheet = false
-                            viewModel.saveTaxaAndIof()
+                            viewModel.saveSpreadAndIof()
                         }
                     }
                     Spacer(modifier = Modifier.size(60.dp))
