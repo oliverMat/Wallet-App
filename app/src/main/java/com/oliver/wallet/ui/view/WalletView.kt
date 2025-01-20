@@ -37,7 +37,6 @@ import com.oliver.wallet.R
 import com.oliver.wallet.ui.AppViewModelProvider
 import com.oliver.wallet.ui.view.calculator.CalculatorView
 import com.oliver.wallet.ui.view.common.LockScreenOrientation
-import com.oliver.wallet.ui.view.graphic.money.MoneyGraphicView
 import com.oliver.wallet.ui.view.money.MoneyView
 import com.oliver.wallet.ui.view.stock.StockView
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
@@ -71,14 +70,6 @@ sealed class Screen(
             R.string.nav_name_calculator,
             null,
             R.drawable.calculator_font_belleza
-        )
-
-    data object MoneyGraphic :
-        Screen(
-            WalletScreen.MoneyGraphic.name,
-            R.string.nav_name_money_graphic,
-            null,
-            R.drawable.graphic_font_belleza
         )
 }
 
@@ -122,7 +113,7 @@ fun WalletApp(
     navController: NavHostController = rememberNavController(),
     moneyViewModel: MoneyViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val allScreens = listOf(Screen.Money, Screen.Stock, Screen.Calculator, Screen.MoneyGraphic)
+    val allScreens = listOf(Screen.Money, Screen.Stock, Screen.Calculator)
     val bottomNavItems = listOf(Screen.Money, Screen.Stock)
 
     Scaffold(
@@ -147,7 +138,6 @@ fun WalletApp(
             composable(Screen.Money.route) { MoneyScreen(navController, moneyViewModel) }
             composable(Screen.Stock.route) { StockScreen(navController) }
             composable(Screen.Calculator.route) { CalculatorScreen(moneyViewModel) }
-            composable(Screen.MoneyGraphic.route) { MoneyGraphicScreen(moneyViewModel) }
         }
     }
 }
@@ -230,10 +220,4 @@ private fun StockScreen(navController: NavHostController) {
 private fun CalculatorScreen(viewModel: MoneyViewModel) {
     LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
     CalculatorView(viewModel)
-}
-
-@Composable
-private fun MoneyGraphicScreen(viewModel: MoneyViewModel) {
-    LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-    MoneyGraphicView(viewModel)
 }

@@ -27,6 +27,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
@@ -35,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,7 +56,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -67,7 +69,6 @@ import com.oliver.wallet.data.network.MoneyModel
 import com.oliver.wallet.data.model.MoneyUiState
 import com.oliver.wallet.data.room.model.CoinModel
 import com.oliver.wallet.ui.theme.WalletTheme
-import com.oliver.wallet.ui.view.common.ComposableLifecycle
 import com.oliver.wallet.ui.view.common.ErrorScreenTemplate
 import com.oliver.wallet.ui.view.common.ShimmerEffect
 import com.oliver.wallet.ui.viewmodel.MoneyViewModel
@@ -85,10 +86,9 @@ fun MoneyView(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LifeCycle(viewModel)
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
@@ -106,19 +106,6 @@ fun MoneyView(
 }
 
 @Composable
-private fun LifeCycle(viewModel: MoneyViewModel) {
-    ComposableLifecycle { _, event ->
-        when (event) {
-            Lifecycle.Event.ON_CREATE -> {
-                viewModel.setPeriodChart()
-            }
-
-            else -> {}
-        }
-    }
-}
-
-@Composable
 private fun SuccessScreen(
     uiState: MoneyUiState,
     navController: NavHostController,
@@ -126,16 +113,15 @@ private fun SuccessScreen(
 ) {
     TitleText(stringResource(R.string.money_home_current_quote))
     Price(uiState.price)
-    Spacer(modifier = Modifier.size(15.dp))
     TitleText(stringResource(R.string.money_home_variation_of_day))
     MaxMin(uiState.price)
-    Spacer(modifier = Modifier.size(15.dp))
     TitleText(stringResource(R.string.money_home_coin))
     NameMoney(uiState)
-    Spacer(modifier = Modifier.size(20.dp))
-    Chart(uiState.chart, navController)
-    Spacer(modifier = Modifier.size(35.dp))
+    Chart(uiState.chart, uiState.dailyChart)
+    SingleSelectableChips(viewModel, uiState.dailyChart)
+    Spacer(modifier = Modifier.size(80.dp))
     PartialBottomSheet(uiState, viewModel, navController)
+    Spacer(modifier = Modifier.size(40.dp))
 }
 
 @Composable
@@ -267,8 +253,57 @@ private fun NameMoney(uiState: MoneyUiState) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Chart(listItems: List<Entry>?, navController: NavHostController) {
+fun SingleSelectableChips(viewModel: MoneyViewModel?, dailyChart: String) {
+    val list = listOf(
+        R.string.money_home_7_days to 7,
+        R.string.money_home_1_months to 30,
+        R.string.money_home_3_months to 90,
+        R.string.money_home_6_months to 180,
+        R.string.money_home_1_year to 365
+    )
+
+    val initialIndex = list.indexOfFirst { it.second == dailyChart.toInt() }.coerceAtLeast(0)
+    val itemPosition = remember { mutableIntStateOf(initialIndex) }
+    OutlinedCard(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary),
+        shape = RoundedCornerShape(CornerSize(13.dp)),
+        modifier = Modifier.padding(horizontal = 8.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            list.forEachIndexed { index, period ->
+                FilterChip(
+                    selected = itemPosition.intValue == index,
+                    onClick = {
+                        if (itemPosition.intValue != index) {
+                            viewModel?.setPeriodChart(period.second.toString())
+                        }
+                    },
+                    label = { Text(stringResource(period.first), fontSize = 11.sp) },
+                    border = null,
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Chart(
+    listItems: List<Entry>?,
+    dailyChart: String
+) {
     var lineData by remember { mutableStateOf(LineData()) }
 
     val primaryColor = MaterialTheme.colorScheme.primary.toArgb()
@@ -300,10 +335,9 @@ private fun Chart(listItems: List<Entry>?, navController: NavHostController) {
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .clickable { navController.navigate(WalletScreen.MoneyGraphic.name) }
     ) {
         Spacer(modifier = Modifier.size(6.dp))
-        TitleText(stringResource(R.string.money_home_last_days))
+        TitleText(stringResource(R.string.money_home_last_days, dailyChart.toInt()))
         AndroidView(
             modifier = Modifier
                 .fillMaxSize()
