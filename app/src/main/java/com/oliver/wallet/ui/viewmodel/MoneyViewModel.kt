@@ -217,6 +217,27 @@ class MoneyViewModel(
                         price = when (symbolMoney) {
                             TypeMoney.Dollar -> result.value.dollar
                             TypeMoney.Euro -> result.value.euro
+                            TypeMoney.BrazilianReal -> result.value.brazilianReal
+                            TypeMoney.JapaneseYen -> result.value.japaneseYen
+                            TypeMoney.PoundSterling -> result.value.poundSterling
+                            TypeMoney.AustralianDollar -> result.value.australianDollar
+                            TypeMoney.CanadianDollar -> result.value.canadianDollar
+                            TypeMoney.SwissFranc -> result.value.swissFranc
+                            TypeMoney.ChineseYuan -> result.value.chineseYuan
+                            TypeMoney.SwedishKrona -> result.value.swedishKrona
+                            TypeMoney.NewZealandDollar -> result.value.newZealandDollar
+                            TypeMoney.MexicanPeso -> result.value.mexicanPeso
+                            TypeMoney.SingaporeDollar -> result.value.singaporeDollar
+                            TypeMoney.HongKongDollar -> result.value.hongKongDollar
+                            TypeMoney.NorwegianKrone -> result.value.norwegianKrone
+                            TypeMoney.TurkishLira -> result.value.turkishLira
+                            TypeMoney.IndianRupee -> result.value.indianRupee
+                            TypeMoney.RussianRuble -> result.value.russianRuble
+                            TypeMoney.SouthAfricanRand -> result.value.southAfricanRand
+                            TypeMoney.ChileanPeso -> result.value.chileanPeso
+                            TypeMoney.ArgentinePeso -> result.value.argentinePeso
+                            TypeMoney.TaiwanDollar -> result.value.taiwanDollar
+                            TypeMoney.ThaiBaht -> result.value.thaiBaht
                         }
                     )
                 }

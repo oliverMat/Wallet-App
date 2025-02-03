@@ -4,6 +4,27 @@
     <!-- coin label -->
     <string name="dollar_name">Dolar</string>
     <string name="euro_name">Euro</string>
+    <string name="brazilianReal_name">Real Brasileiro</string>
+    <string name="japaneseYen_name">Iene Japonês</string>
+    <string name="poundSterling_name">Libra Esterlina</string>
+    <string name="australianDollar_name">Dólar Australiano</string>
+    <string name="canadianDollar_name">Dólar Canadense</string>
+    <string name="swissFranc_name">Franco Suíço</string>
+    <string name="chineseYuan_name">Renminbi Chinês (Yuan)</string>
+    <string name="swedishKrona_name">Coroa Sueca</string>
+    <string name="newZealandDollar_name">Dólar Neozelandês</string>
+    <string name="mexicanPeso_name">Peso Mexicano</string>
+    <string name="singaporeDollar_name">Dólar de Singapura</string>
+    <string name="hongKongDollar_name">Dólar de Hong Kong</string>
+    <string name="norwegianKrone_name">Coroa Norueguesa</string>
+    <string name="turkishLira_name">Lira Turca</string>
+    <string name="indianRupee_name">Rupia Indiana</string>
+    <string name="russianRuble_name">Rublo Russo</string>
+    <string name="southAfricanRand_name">Rand Sul-Africano</string>
+    <string name="chileanPeso_name">Peso Chileno</string>
+    <string name="argentinePeso_name">Peso Argentino</string>
+    <string name="taiwanDollar_name">Dólar Taiwanês</string>
+    <string name="thaiBaht_name">Baht Tailandês</string>
 
     <!-- navigation label -->
     <string name="nav_name_money">Dinheiro</string>
