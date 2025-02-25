@@ -63,7 +63,7 @@ class MoneyViewModel(
         setConnectionStatus(ConnectionStatus.Loading)
         viewModelScope.launch {
             delay(UPDATE_INTERVAL_2_SEG)
-            setComponents(coinModel.typeMoney)
+            setComponents(coinModel.typeMoney, _uiState.value.dailyChart)
         }
     }
 
@@ -195,7 +195,7 @@ class MoneyViewModel(
         }
     }
 
-    private suspend fun setComponents(symbolMoney: TypeMoney, daily: String = DAILY_STANDARD) {
+    private suspend fun setComponents(symbolMoney: TypeMoney, daily: String) {
         getPriceOfDay(symbolMoney)
         getChartForPeriod(symbolMoney, daily)
     }
