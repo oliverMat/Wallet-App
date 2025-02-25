@@ -136,7 +136,6 @@ private fun LoadingScreen() {
                 RoundedCornerShape(12.dp)
             )
     )
-    Spacer(modifier = Modifier.size(10.dp))
     ShimmerEffect(
         modifier = Modifier
             .height(270.dp)
@@ -147,6 +146,43 @@ private fun LoadingScreen() {
                 RoundedCornerShape(12.dp)
             )
     )
+    ShimmerEffect(
+        modifier = Modifier
+            .height(65.dp)
+            .fillMaxWidth()
+            .padding(8.dp)
+            .background(
+                MaterialTheme.colorScheme.tertiary,
+                RoundedCornerShape(12.dp)
+            )
+    )
+    Spacer(modifier = Modifier.size(80.dp))
+    Row {
+        ShimmerEffect(
+            modifier = Modifier
+                .height(65.dp)
+                .fillMaxWidth()
+                .padding(8.dp)
+                .weight(1f)
+                .background(
+                    MaterialTheme.colorScheme.tertiary,
+                    RoundedCornerShape(12.dp)
+                )
+        )
+        Spacer(modifier = Modifier.size(20.dp))
+        ShimmerEffect(
+            modifier = Modifier
+                .height(65.dp)
+                .fillMaxWidth()
+                .padding(8.dp)
+                .weight(1f)
+                .background(
+                    MaterialTheme.colorScheme.tertiary,
+                    RoundedCornerShape(12.dp)
+                )
+        )
+    }
+    Spacer(modifier = Modifier.size(40.dp))
 }
 
 @Composable
